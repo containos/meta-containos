@@ -19,7 +19,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=136e4f49dbf29942c572a3a8f6e88a77"
 STAGE1_DEFAULT_LOCATION = "${libexecdir}/stage1-host.aci"
 
 EXTRA_OECONF += "\
- --with-stage1-flavors=host \
+ --with-stage1-flavors=host,fly \
  --with-stage1-default-location=${STAGE1_DEFAULT_LOCATION} \
  "
 PACKAGECONFIG[trousers] = "--enable-tpm,--disable-tpm,trousers,"
