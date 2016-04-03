@@ -10,8 +10,8 @@ SRC_URI = "\
         http://github.com/coreos/rkt/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
         file://cross-compile.patch \
 	"
-SRC_URI[md5sum] = "e5cbaf24af906840eb4c0c984f2dfcf8"
-SRC_URI[sha256sum] = "82cb68f8a2a986d506f5bd1935883f5be83c7e918d3e1614b6db54db4f427fdd"
+SRC_URI[md5sum] = "14a89e3a0fcf62480ac0c2c128b48c5a"
+SRC_URI[sha256sum] = "0468c5b1079da8df65db9ebd0b712f64509acf6c8d6b34b780b6e787271d9b30"
 
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=136e4f49dbf29942c572a3a8f6e88a77"
