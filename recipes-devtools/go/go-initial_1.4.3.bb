@@ -50,5 +50,4 @@ do_install() {
   done
 }
 
-PROVIDES += "go-bootstrap"
 BBCLASSEXTEND = "cross native nativesdk"

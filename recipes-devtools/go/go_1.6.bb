@@ -29,7 +29,7 @@ inherit golang-base
 
 export CGO_ENABLED = "1"
 
-DEPENDS += "go-bootstrap-native bash-native"
+DEPENDS += "go-initial-native bash-native"
 export GOROOT_BOOTSTRAP = "${STAGING_LIBDIR_NATIVE}/go-bootstrap"
 
 # "Stripping golang binaries causes crashes"
