@@ -9,6 +9,7 @@ inherit golang-base autotools systemd useradd
 SRC_URI = "\
         http://github.com/coreos/rkt/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
         file://cross-compile.patch \
+        file://appc-arm-arch.patch \
 	"
 SRC_URI[md5sum] = "14a89e3a0fcf62480ac0c2c128b48c5a"
 SRC_URI[sha256sum] = "0468c5b1079da8df65db9ebd0b712f64509acf6c8d6b34b780b6e787271d9b30"
@@ -29,6 +30,9 @@ DEPENDS = "go-native \
     acl \
     "
 
+RRECOMMENDS_${PN} += "ca-certificates"
+RSUGGESTS_${PN} += "rkt-pubkeys"
+
 # dlopened inside stage1
 RDEPENDS_${PN} += "libacl"
 
@@ -37,8 +41,8 @@ DEPENDS += "${@bb.utils.contains('DISTRO_FEATURES','systemd','systemd','',d)}"
 
 # 'host' copies various files from the host at runtime.
 # See stage1/init/init.go:installAssets() for details.
-# Current list is: bash systemctl systemd{,-shutdown,-journald}
-RDEPENDS_${PN} += "systemd (>= 222) bash"
+# Current list is: bash systemctl systemd{,-shutdown,-journald} ldd
+RDEPENDS_${PN} += "systemd (>= 222) bash ldd"
 
 SYSTEMD_SERVICE_${PN} = "\
  rkt-gc.service rkt-gc.timer \
