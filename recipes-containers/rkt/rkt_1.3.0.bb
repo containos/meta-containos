@@ -4,12 +4,13 @@ SUMMARY = "CLI for running app containers on Linux"
 DESCRIPTION = "rkt (pronounced "rock-it") is a CLI for running app containers \
 on Linux. rkt is designed to be secure, composable, and standards-based."
 
-inherit golang-base autotools systemd useradd
+inherit golang-base autotools systemd useradd ptest
 
 SRC_URI = "\
         http://github.com/coreos/rkt/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
         file://cross-compile.patch \
         file://appc-arm-arch.patch \
+        file://run-ptest \
 	"
 SRC_URI[md5sum] = "14a89e3a0fcf62480ac0c2c128b48c5a"
 SRC_URI[sha256sum] = "0468c5b1079da8df65db9ebd0b712f64509acf6c8d6b34b780b6e787271d9b30"
