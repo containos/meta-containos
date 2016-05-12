@@ -30,7 +30,7 @@ PACKAGECONFIG[importd] = "--enable-importd,--disable-importd"
 PACKAGECONFIG[hostnamed] = "--enable-hostnamed,--disable-hostnamed"
 PACKAGECONFIG[firstboot] = "--enable-firstboot,--disable-firstboot"
 
-PACKAGECONFIG ??= "xz ldconfig dbus kmod blkid gnutls vconsole tmpfiles logind sysusers randomseed binfmt machined hwdb importd firstboot hostnamed timedated timesyncd \
+PACKAGECONFIG ??= "xz ldconfig dbus kmod blkid gnutls vconsole tmpfiles logind sysusers randomseed binfmt machined hwdb importd firstboot hostnamed timedated timesyncd bootchart quotacheck smack polkit hibernate \
                    ${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'pam', '', d)} \
                    ${@bb.utils.contains('DISTRO_FEATURES', 'x11', 'xkbcommon', '', d)} \
                    ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'selinux', '', d)} \
