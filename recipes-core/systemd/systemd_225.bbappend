@@ -37,13 +37,18 @@ PACKAGECONFIG ??= "xz ldconfig dbus kmod blkid gnutls vconsole tmpfiles logind s
                    ${@bb.utils.contains('DISTRO_FEATURES', 'acl', 'acl', '', d)} \
                    ${@bb.utils.contains('DISTRO_FEATURES', 'wifi', 'rfkill', '', d)} \
                    ${@bb.utils.contains('DISTRO_FEATURES', 'nls', 'localed', '', d)} \
-                   ${@bb.utils.contains('MACHINE_FEATURES', 'efi', 'efi gnuefi', '', d)} \
+                   ${@bb.utils.contains('MACHINE_FEATURES', 'efi', 'efi', '', d)} \
                    ${@bb.utils.contains('MACHINE_FEATURES', 'screen', 'backlight', '', d)} \
                   "
 
 NSS_PKGCONFIG = ""
 NSS_PKGCONFIG_class-target = "myhostname"
 PACKAGECONFIG_append_libc-glibc = " ${NSS_PKGCONFIG}"
+
+EXTRA_OECONF += "--with-efi-libdir=${libdir} \
+                 --with-efi-ldsdir=${libdir} \
+                 --with-efi-includedir=${includedir} \
+                "
 
 EXTRA_OECONF += "${@bb.utils.contains('DISTRO_FEATURES', 'sysvinit', \
                  '--with-sysvrcnd-path=${sysconfdir}/rc.d --with-sysvinit-path=${sysconfdir}/init.d', \
