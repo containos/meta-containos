@@ -42,8 +42,8 @@ DEPENDS += "${@bb.utils.contains('DISTRO_FEATURES','systemd','systemd','',d)}"
 
 # 'host' copies various files from the host at runtime.
 # See stage1/init/init.go:installAssets() for details.
-# Current list is: bash systemctl systemd{,-shutdown,-journald} ldd
-RDEPENDS_${PN} += "systemd (>= 222) bash ldd"
+# Current list is: bash systemctl systemd{,-shutdown,-journald} libsystemd.so ldd
+RDEPENDS_${PN} += "systemd (>= 222) libsystemd (>= 222) bash ldd"
 
 SYSTEMD_SERVICE_${PN} = "\
  rkt-gc.service rkt-gc.timer \
@@ -62,24 +62,28 @@ GROUPADD_PARAM_${PN} = "--system rkt"
 
 FILES_${PN} += "${systemd_tmpfilesdir}"
 
+FILES_${PN} += "${datadir}/bash-completion"
+
 do_install() {
   set -x
 
-  install -d -m 755 ${D}/${bindir} ${D}${libexecdir} \
+  install -d -m 755 ${D}${bindir} ${D}${libexecdir} ${D}${datadir} \
+    ${D}${datadir}/bash-completion/completions \
     ${D}${systemd_tmpfilesdir} ${D}${systemd_system_unitdir}
 
-  install -m 755 ${B}/build-rkt/bin/rkt ${D}/${bindir}/
-  install -m 644 ${B}/build-rkt/bin/stage1-host.aci ${D}/${STAGE1_DEFAULT_LOCATION}
+  install -m 755 ${B}/build-rkt/bin/rkt ${D}${bindir}/
+  install -m 644 ${B}/build-rkt/bin/stage1-*.aci ${D}${libexecdir}/
 
   for f in ${SYSTEMD_SERVICE_${PN}}; do
-    install -m 644 ${B}/dist/init/systemd/$f ${D}/${systemd_system_unitdir}/
+    install -m 644 ${B}/dist/init/systemd/$f ${D}${systemd_system_unitdir}/
   done
-  install -m 644 ${B}/dist/init/systemd/tmpfiles.d/rkt.conf ${D}/${systemd_tmpfilesdir}
+  install -m 644 ${B}/dist/init/systemd/tmpfiles.d/rkt.conf ${D}${systemd_tmpfilesdir}
 
+  install -m 644 ${B}/dist/bash_completion/rkt.bash ${D}${datadir}/bash-completion/completions/rkt
 
   if ${@bb.utils.contains('DISTRO_FEATURES','systemd','false','true',d)}; then
     # TODO: without systemd/tmpfiles.d/, this needs to be invoked on boot somehow
     install -d -m ${D}${datadir}
-    install -D -m 755 ${B}/dist/scripts/setup-data-dir.sh ${D}${datadir}/
+    install -m 755 ${B}/dist/scripts/setup-data-dir.sh ${D}${datadir}/
   fi
 }
