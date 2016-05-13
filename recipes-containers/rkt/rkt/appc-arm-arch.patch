@@ -129,19 +129,17 @@ diff --git a/rkt/image/fetcher.go b/rkt/image/fetcher.go
 index 28054d6..b45a126 100644
 --- a/rkt/image/fetcher.go
 +++ b/rkt/image/fetcher.go
-@@ -18,8 +18,8 @@ import (
- 	"container/list"
+@@ -20,7 +20,6 @@ import (
  	"fmt"
  	"net/url"
+ 	"os"
 -	"runtime"
-
-+	"github.com/coreos/rkt/common"
+ 
+ 	"github.com/coreos/rkt/common"
  	"github.com/coreos/rkt/common/apps"
- 	"github.com/coreos/rkt/stage0"
- 	"github.com/coreos/rkt/store"
-@@ -268,15 +268,17 @@ type appBundle struct {
+@@ -278,15 +277,17 @@ type appBundle struct {
  }
-
+ 
  func newAppBundle(name string) (*appBundle, error) {
 +	appc_os, appc_archs := common.LocalOSArch()
 +
@@ -228,3 +226,14 @@ index 3a30663..c344114 100644
  		}
  	}
 
+--- a/Godeps/_workspace/src/github.com/appc/cni/pkg/ns/ns.go	2016-05-13 16:34:13.087937599 +1000
++++ b/Godeps/_workspace/src/github.com/appc/cni/pkg/ns/ns.go	2016-05-13 16:34:22.304195684 +1000
+@@ -24,7 +24,7 @@
+ var setNsMap = map[string]uintptr{
+ 	"386":   346,
+ 	"amd64": 308,
+-	"arm":   374,
++	"arm":   375,
+ }
+ 
+ // SetNS sets the network namespace on a target file.

@@ -1,9 +1,0 @@
---- rkt-1.1.0/tools/actool.mk.orig      2016-03-22 12:33:27.709649000 +0000
-+++ rkt-1.1.0/tools/actool.mk   2016-03-22 12:33:38.373649000 +0000
-@@ -4,6 +4,7 @@
- BGB_STAMP := $(ACTOOL_STAMP)
- BGB_PKG_IN_REPO := Godeps/_workspace/src/github.com/appc/spec/actool
- BGB_BINARY := $(ACTOOL)
-+BGB_ADDITIONAL_GO_ENV := GOARCH=$(GOARCH_FOR_BUILD) CC=$(CC_FOR_BUILD)
-
- CLEAN_FILES += $(ACTOOL)
