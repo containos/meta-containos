@@ -44,7 +44,7 @@ INHIBIT_SYSROOT_STRIP = "1"
 export GOBIN = "${S}/bin"
 
 # executables look for GOROOT_FINAL at run-time
-export GOROOT_FINAL = "${libdir}/${BP}"
+export GOROOT_FINAL = "${libdir}/${BPN}"
 
 do_compile() {
   bash -x ./make.bash
@@ -71,7 +71,7 @@ do_install() {
     bin_staging_dir="${GOBIN}"
   fi
   install -d "${D}${bindir}"
-  install -m 0755 "${bin_staging_dir}/go" "${bin_staging_dir}/gofmt" "${D}${bindir}/"
+  install -m 0755 "$bin_staging_dir/go" "$bin_staging_dir/gofmt" "${D}${bindir}/"
 
   install -d "${D}${GOROOT_FINAL}"
   for dir in lib pkg src; do

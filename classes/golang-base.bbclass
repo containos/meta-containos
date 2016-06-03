@@ -20,5 +20,5 @@ export CGO_CPPFLAGS = "${CPPFLAGS}"
 export CGO_CXXFLAGS = "${CXXFLAGS}"
 export CGO_LDFLAGS = "${LDFLAGS}"
 
-GO_LIBDIR = "${libdir}/go"
+GO_LIBDIR = "${STAGING_LIBDIR_NATIVE}/go"
 export GOPATH = "${GO_LIBDIR}"
