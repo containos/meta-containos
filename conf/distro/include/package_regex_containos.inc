@@ -30,4 +30,10 @@ REGEX_URI_pn-go = "http://golang.org/dl/"
 REGEX_pn-go = "go(?P<pver>(\d+[\.-_]*)+)\.src\.tar\.gz"
 
 REGEX_URI_pn-libseccomp = "https://github.com/seccomp/libseccomp/releases"
-REGEX_pn-pn-libseccomp = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
+REGEX_pn-libseccomp = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
+
+REGEX_URI_pn-godep = "https://github.com/tools/godep/releases"
+REGEX_pn-godep = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
+
+REGEX_URI_pn-kubernetes = "https://github.com/kubernetes/kubernetes/releases"
+REGEX_pn-kubernetes = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
