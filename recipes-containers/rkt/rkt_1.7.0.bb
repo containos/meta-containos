@@ -9,10 +9,11 @@ inherit golang-base autotools systemd useradd ptest
 SRC_URI = "\
         http://github.com/coreos/rkt/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
         file://appc-arm-arch.patch \
+	file://types-32bit.patch \
         file://run-ptest \
 	"
-SRC_URI[md5sum] = "8bc1068b3cbc79038cc6d16908b086e9"
-SRC_URI[sha256sum] = "2a9320b0fe41551e88e8477e4223ef9e2b7ebaf9947829235b5e936dbd61f5d4"
+SRC_URI[md5sum] = "6c96cc4656d245a96209f57d1bbe6586"
+SRC_URI[sha256sum] = "80806ea63fe741cc569c991f98721289cd439c2239c3a8b1966ced2e467ed182"
 
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=136e4f49dbf29942c572a3a8f6e88a77"
@@ -25,7 +26,8 @@ EXTRA_OECONF += "\
  "
 PACKAGECONFIG[trousers] = "--enable-tpm,--disable-tpm,trousers,"
 
-DEPENDS = "go-native \
+DEPENDS = "\
+    go-native \
     systemd \
     acl \
     "
@@ -67,8 +69,11 @@ FILES_${PN} += "${systemd_tmpfilesdir}"
 
 FILES_${PN} += "${datadir}/bash-completion"
 
-do_compile_append () {
-  oe_runmake GOARCH= CC=${BUILD_CC} bash-completion manpages
+# Various parts of the rkt Makefiles require `realpath`.  It is
+# easiest to provide this with a shell function rather than build
+# coreutils-native
+realpath () {
+  readlink -fn $0
 }
 
 do_install () {
@@ -83,10 +88,14 @@ do_install () {
   done
   install -D -m 644 ${B}/dist/init/systemd/tmpfiles.d/rkt.conf ${D}${systemd_tmpfilesdir}/rkt.conf
 
-  install -D -m 644 ${B}/dist/bash_completion/rkt.bash ${D}${datadir}/bash-completion/completions/rkt
+  if [ -r ${B}/dist/bash_completion/rkt.bash ]; then
+     install -D -m 644 ${B}/dist/bash_completion/rkt.bash ${D}${datadir}/bash-completion/completions/rkt
+  fi
 
-  install -d ${D}${mandir}/man1
-  install -m 644 -t ${D}${mandir}/man1 ${B}/dist/manpages/*.1
+  if [ -r ${B}/dist/manpages/rkt.1 ]; then
+     install -d ${D}${mandir}/man1
+     install -m 644 -t ${D}${mandir}/man1 ${B}/dist/manpages/*.1
+  fi
 
   if ${@bb.utils.contains('DISTRO_FEATURES','systemd','false','true',d)}; then
     # TODO: without systemd/tmpfiles.d/, this needs to be invoked on boot somehow

@@ -188,24 +188,6 @@ diff --git a/Godeps/_workspace/src/github.com/appc/docker2aci/lib/internal/inter
 index 3a30663..c344114 100644
 --- a/Godeps/_workspace/src/github.com/appc/docker2aci/lib/internal/internal.go
 +++ b/Godeps/_workspace/src/github.com/appc/docker2aci/lib/internal/internal.go
-@@ -62,6 +62,8 @@ func GenerateACI(layerNumber int, layerData types.DockerImageData, dockerURL *ty
- 		return "", nil, fmt.Errorf("error generating the manifest: %v", err)
- 	}
-
-+	log.Debug("Generated manifest: ", manifest)
-+
- 	imageName := strings.Replace(dockerURL.ImageName, "/", "-", -1)
- 	aciPath := imageName + "-" + layerData.ID
- 	if dockerURL.Tag != "" {
-@@ -147,6 +149,8 @@ func GenerateManifest(layerData types.DockerImageData, dockerURL *types.ParsedDo
- 	version := appctypes.MustACIdentifier("version")
- 	labels = append(labels, appctypes.Label{Name: *version, Value: tag})
-
-+	log.Debug("layerData: OS=", layerData.OS, " Arch=", layerData.Architecture)
-+
- 	if layerData.OS != "" {
- 		os := appctypes.MustACIdentifier("os")
- 		labels = append(labels, appctypes.Label{Name: *os, Value: layerData.OS})
 @@ -154,8 +158,17 @@ func GenerateManifest(layerData types.DockerImageData, dockerURL *types.ParsedDo
 
  		if layerData.Architecture != "" {
@@ -226,14 +208,3 @@ index 3a30663..c344114 100644
  		}
  	}
 
---- a/Godeps/_workspace/src/github.com/appc/cni/pkg/ns/ns.go	2016-05-13 16:34:13.087937599 +1000
-+++ b/Godeps/_workspace/src/github.com/appc/cni/pkg/ns/ns.go	2016-05-13 16:34:22.304195684 +1000
-@@ -24,7 +24,7 @@
- var setNsMap = map[string]uintptr{
- 	"386":   346,
- 	"amd64": 308,
--	"arm":   374,
-+	"arm":   375,
- }
- 
- // SetNS sets the network namespace on a target file.
