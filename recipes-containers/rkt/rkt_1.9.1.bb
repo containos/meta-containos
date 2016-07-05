@@ -9,11 +9,11 @@ inherit golang-base autotools systemd useradd ptest
 SRC_URI = "\
         http://github.com/coreos/rkt/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
         file://appc-arm-arch.patch \
-	file://types-32bit.patch \
         file://run-ptest \
 	"
-SRC_URI[md5sum] = "6619675ad4f6880a32e7892903e4ff6c"
-SRC_URI[sha256sum] = "92edff82da05b45842afde21a29244835118e3f8c8a3f5f4b7aab719924b899c"
+#	file://types-32bit.patch 
+SRC_URI[md5sum] = "15707b64b38776747ccf14f25350e82f"
+SRC_URI[sha256sum] = "b7b7b2c10dc8e27c76aad2b934609f40356d94a91fe60f65174afa6ae599a565"
 
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=136e4f49dbf29942c572a3a8f6e88a77"
