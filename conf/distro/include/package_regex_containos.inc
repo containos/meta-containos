@@ -26,9 +26,6 @@
 REGEX_URI_pn-rkt = "https://github.com/coreos/rkt/releases"
 REGEX_pn-rkt = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
 
-REGEX_URI_pn-go = "http://golang.org/dl/"
-REGEX_pn-go = "go(?P<pver>(\d+[\.-_]*)+)\.src\.tar\.gz"
-
 REGEX_URI_pn-libseccomp = "https://github.com/seccomp/libseccomp/releases"
 REGEX_pn-libseccomp = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
 

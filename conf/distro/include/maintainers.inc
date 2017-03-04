@@ -1,4 +1,3 @@
-RECIPE_MAINTAINER_pn-go = "Angus Lees <gus@inodes.org>"
 RECIPE_MAINTAINER_pn-godep = "Angus Lees <gus@inodes.org>"
 RECIPE_MAINTAINER_pn-kubernetes = "Angus Lees <gus@inodes.org>"
 RECIPE_MAINTAINER_pn-libseccomp = "Angus Lees <gus@inodes.org>"
