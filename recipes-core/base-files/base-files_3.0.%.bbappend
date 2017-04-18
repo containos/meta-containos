@@ -10,7 +10,9 @@ systemd_networkdir = "${base_libdir}/systemd/network"
 systemd_timesyncdconfdir = "${base_libdir}/systemd/timesyncd.conf.d"
 
 do_install_append() {
-  ln -s /run/systemd/resolve/resolv.conf ${D}${sysconfdir}/resolv.conf
+  ln -s ../run/systemd/resolve/resolv.conf ${D}${sysconfdir}/resolv.conf
+  ln -s ../usr/share/zoneinfo/UTC ${D}${sysconfdir}/localtime
+  ln -sf ../proc/self/mounts ${D}${sysconfdir}/mtab
 
   install -d ${D}${systemd_networkdir}
   install -m 644 ${WORKDIR}/network-mac-for-usb ${D}${systemd_networkdir}/90-mac-for-usb.link
