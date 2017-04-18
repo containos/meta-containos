@@ -1,0 +1,8 @@
+--- rkt-1.9.1/dist/init/systemd/tmpfiles.d/rkt.conf.orig  2017-04-18 23:24:05.087063166 +1000
++++ rkt-1.9.1/dist/init/systemd/tmpfiles.d/rkt.conf       2017-04-18 23:24:48.795217353 +1000
+@@ -23,4 +23,4 @@
+ d /var/lib/rkt/pods/exited-garbage 2750 root rkt
+ d /var/lib/rkt/pods/garbage 2750 root rkt
+ 
+-d /etc/rkt 2775 root rkt-admin
++#d /etc/rkt 2775 root rkt-admin

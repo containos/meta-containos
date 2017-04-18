@@ -9,6 +9,7 @@ inherit go autotools systemd useradd ptest
 SRC_URI = "\
         https://github.com/coreos/rkt/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
         file://appc-arm-arch.patch \
+        file://no-rkt-admin.patch \
         file://run-ptest \
 	"
 #	file://types-32bit.patch
@@ -81,6 +82,10 @@ do_install () {
   install -D -m 755 ${B}/build-rkt/bin/rkt ${D}${bindir}/rkt
   install -d ${D}${libexecdir}/
   install -m 644 -t ${D}${libexecdir}/ ${B}/build-rkt/bin/stage1-*.aci
+
+  # Don't bother with the whole rkt-admin thing
+  #install -d -m 2775 -g rkt-admin ${D}${sysconfdir}/rkt/
+  install -d -m 755 ${D}${sysconfdir}/rkt/
 
   for f in ${SYSTEMD_SERVICE_${PN}}; do
     install -D -m 644 ${B}/dist/init/systemd/$f ${D}${systemd_system_unitdir}/$f
