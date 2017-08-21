@@ -8,12 +8,10 @@ inherit go systemd useradd pkgconfig ptest
 
 SRC_URI = "\
 	https://github.com/moby/moby/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
-	file://trustkeypath.patch;patchdir=${UNPACK} \
-	file://daemon.json \
-        file://run-ptest \
+	file://run-ptest \
 	"
-SRC_URI[md5sum] = "23e13f2e102a8746240909d435e2d22f"
-SRC_URI[sha256sum] = "0b8cd2f66bd99d781e9a228dc00f14399dd9bd11078ee51a777d4e321c2095cf"
+SRC_URI[md5sum] = "3969aa0ef2996d04427ff48fb7cc6015"
+SRC_URI[sha256sum] = "2e85d1d7fb33308b85cfacff92205e933ce5c529a5c58155f0b46bfcccda2dd8"
 
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${UNPACK}/LICENSE;md5=aadc30f9c14d876ded7bedc0afd2d3d7"
@@ -106,8 +104,6 @@ do_compile_append () {
 do_install () {
   set -x
   d=${B}/bundles/latest
-
-  install -D -m 644 -t ${D}${sysconfdir}/docker ${WORKDIR}/daemon.json
 
   install -D -m 755 -t ${D}${bindir} $d/dynbinary-daemon/dockerd $d/dynbinary-client/docker
 
