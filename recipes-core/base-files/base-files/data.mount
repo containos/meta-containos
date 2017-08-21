@@ -1,0 +1,6 @@
+[Unit]
+Description=Mount DATA partition on /data
+
+[Mount]
+What=/dev/disk/by-label/DATA
+Where=/data

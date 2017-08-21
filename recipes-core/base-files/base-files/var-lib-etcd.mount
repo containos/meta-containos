@@ -1,0 +1,12 @@
+[Unit]
+Description=Bind mount /data/etcd onto /var/lib/etcd
+Before=docker.service
+ConditionPathIsMountPoint=/data
+
+[Mount]
+What=/data/etcd
+Where=/var/lib/etcd
+Options=bind
+
+[Install]
+WantedBy=docker.service
