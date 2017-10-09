@@ -11,12 +11,7 @@ SRC_URI[sha256sum] = "8589670f7f9b211a351dfcd211d4fe0b961d77283a7415443dc188f3db
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${UNPACK}/LICENSE;md5=e3fc50a88d0a364313df4b21ef20c29e"
 
-inherit go
-
-# go.bbclass uses S oddly :-(
-S = "${WORKDIR}/gopath"
-B = "${S}/src/${GO_IMPORT}"
-UNPACK = "${WORKDIR}/plugins-${PV}"
+inherit golang
 
 GO_IMPORT = "github.com/containernetworking/plugins"
 GO_INSTALL = "\
@@ -33,13 +28,8 @@ FILES_${PN}-staticdev += "${libexecdir}/cni/sample"
 INSANE_SKIP_${PN} += "ldflags"
 INSANE_SKIP_${PN}-staticdev += "ldflags"
 
-do_compile[dirs] += "${B}"
-do_compile_prepend() {
-  tar -C ${UNPACK} -cf - . | tar -C ${B} -xpf -
-}
-
 do_install () {
-  install -D -m 755 -t ${D}${libexecdir}/cni $(find ${S}/bin -type f)
+  install -D -m 755 -t ${D}/opt/cni/bin $(find ${S}/bin -type f)
 }
 
 BBCLASSEXTEND = "native nativesdk"
