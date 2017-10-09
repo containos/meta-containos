@@ -4,7 +4,7 @@ SUMMARY = "Linux container runtime"
 DESCRIPTION = "Docker is an open source project to pack, ship and run any \
 application as a lightweight container."
 
-inherit go systemd useradd pkgconfig ptest
+inherit golang systemd useradd pkgconfig ptest
 
 SRC_URI = "\
 	https://github.com/moby/moby/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
@@ -14,15 +14,12 @@ SRC_URI[md5sum] = "4fde7a13f2085e18066e96d3532d57b0"
 SRC_URI[sha256sum] = "171a65c44340c7b5710da6948b0afb9306b126b36c531ddab1a3653fd2980aaa"
 
 LICENSE = "Apache-2.0"
-LIC_FILES_CHKSUM = "file://${UNPACK}/LICENSE;md5=aadc30f9c14d876ded7bedc0afd2d3d7"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=aadc30f9c14d876ded7bedc0afd2d3d7"
 
 GO_IMPORT = "github.com/docker/docker"
 GO_INSTALL = ""
 
-# go.bbclass uses S oddly :-(
-S = "${WORKDIR}/gopath"
-B = "${S}/src/${GO_IMPORT}"
-UNPACK = "${WORKDIR}/moby-${PV}"
+UNPACK_STRIP_PREFIX = "moby-${PV}"
 
 RDEPENDS_${PN} += "containerd"
 
@@ -85,19 +82,12 @@ PACKAGES =+ "${PN}-client"
 
 FILES_${PN}-client += "${bindir}/docker ${datadir}/bash-completion"
 
-export GOPATH = "${S}:${STAGING_LIBDIR}/${TARGET_SYS}/go"
-
 do_configure () {
   :
 }
 
-do_compile[dirs] += "${B}"
-do_compile_prepend() {
-  tar -C ${UNPACK} -cf - . | tar -C ${B} -xpf -
-}
-
-do_compile_append () {
-  ( cd ${B} && bash -x ./hack/make.sh dynbinary-client dynbinary-daemon )
+do_compile () {
+  bash -x ./hack/make.sh dynbinary-client dynbinary-daemon
 }
 
 do_install () {
