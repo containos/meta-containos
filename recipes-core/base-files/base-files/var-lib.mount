@@ -1,0 +1,6 @@
+[Unit]
+Description=Mount DATA partition on /var/lib
+
+[Mount]
+What=/dev/disk/by-label/DATA
+Where=/var/lib

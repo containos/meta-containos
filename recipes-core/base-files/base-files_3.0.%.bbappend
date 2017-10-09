@@ -4,10 +4,9 @@ SRC_URI += "\
   file://network-mac-for-usb \
   file://eth-dhcp \
   file://timesyncd.conf \
-  file://data.mount \
-  file://var-lib-docker.mount \
-  file://var-lib-etcd.mount \
+  file://var-lib.mount \
   file://kubelet.conf \
+  file://kubelet.path \
   "
 
 inherit systemd
@@ -16,11 +15,10 @@ systemd_networkdir = "${base_libdir}/systemd/network"
 systemd_timesyncdconfdir = "${base_libdir}/systemd/timesyncd.conf.d"
 
 SYSTEMD_PACKAGES += "${PN}"
-SYSTEMD_SERVICE_${PN} += "data.mount"
-SYSTEMD_SERVICE_${PN}_bananapi += "data.mount var-lib-docker.mount var-lib-etcd.mount"
+SYSTEMD_SERVICE_${PN} += "kubelet.path ${EXTRA_SYSTEMD_SERVICES}"
 
-# don't use a static hostname
-hostname = ""
+EXTRA_SYSTEMD_SERVICES = ""
+EXTRA_SYSTEMD_SERVICES_bananapi += "var-lib.mount"
 
 do_install_append() {
   set -x
@@ -35,7 +33,7 @@ do_install_append() {
 
   install -D -m 644 ${WORKDIR}/timesyncd.conf ${D}${systemd_timesyncdconfdir}/90-fallback.conf
 
-  for f in ${SYSTEMD_SERVICE_${PN}}; do
+  for f in ${SYSTEMD_SERVICE_base-files}; do
     install -D -m 644 -t ${D}/${systemd_system_unitdir} ${WORKDIR}/$f
   done
 
