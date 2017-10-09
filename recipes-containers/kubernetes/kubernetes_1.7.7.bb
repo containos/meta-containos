@@ -8,20 +8,16 @@ SRC_URI = "\
 	https://github.com/kubernetes/kubernetes/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
 	file://docker.conf \
 	"
-SRC_URI[md5sum] = "2b5c6c0e701f503c0e2aa709e4949921"
-SRC_URI[sha256sum] = "7f84e08c2944865247c3fee26b010452e4a315a1cdd7983ff59d151f17167b13"
+SRC_URI[md5sum] = "432289972395832afaa7e96b31b3fa68"
+SRC_URI[sha256sum] = "356e15aacaa0a5db4c3f930d44dcfe4f61eed6379d529a6b7b1661228b693c27"
 
 LICENSE = "Apache-2.0"
-LIC_FILES_CHKSUM = "file://${UNPACK}/LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
-inherit go systemd
-
-# go.bbclass uses S oddly :-(
-S = "${WORKDIR}/gopath"
-B = "${S}/src/${GO_IMPORT}"
-UNPACK = "${WORKDIR}/${BPN}-${PV}"
+inherit golang systemd
 
 DEPENDS += "godep-native"
+GO = "godep go"
 
 # Additional dependencies for `make generated-files`
 DEPENDS += "coreutils-native rsync-native"
@@ -34,7 +30,7 @@ RDEPENDS_${PN}-dev += "bash"
 #  https://github.com/kubernetes/kubernetes/issues/26093
 # FIXME: only need nsenter from util-linux
 RDEPENDS_kubelet += "ethtool util-linux"
-RDEPENDS_kubelet += "cni-plugins iptables iproute2-tc"
+RDEPENDS_kubelet += "ebtables iptables iproute2-tc"
 # busybox `ip` is sufficient
 #RDEPENDS_kubelet += "iproute2"
 # socat is used for port-forward feature
@@ -46,15 +42,18 @@ RDEPENDS_kubeadm += "kubelet"
 
 FILES_${PN}-client += "${bindir}/kubectl ${bindir}/kubefed"
 FILES_kubelet += "\
-	 ${bindir}/kubelet \
-	 ${systemd_system_unitdir}/kubelet.service \
-	 ${systemd_system_unitdir}/docker.service.d/10-kubelet.conf \
-	 "
+	${bindir}/kubelet \
+	${systemd_system_unitdir}/kubelet.service \
+	${systemd_system_unitdir}/kubelet.path \
+	${systemd_system_unitdir}/docker.service.d/10-kubelet.conf \
+	${systemd_system_unitdir}/kubelet.service.d/10-kubeadm.conf \
+	${sysconfdir}/kubernetes/manifests \
+	${sysconfdir}/modules-load.d/kubelet.conf \
+	"
 FILES_kube-proxy += "${bindir}/kube-proxy"
 FILES_kubeadm += "\
-	 ${bindir}/kubeadm \
-	 ${systemd_system_unitdir}/kubelet.service.d/10-kubeadm.conf \
-	 "
+	${bindir}/kubeadm \
+	"
 FILES_pause += "${bindir}/pause"
 FILES_hyperkube += "${bindir}/hyperkube"
 FILES_${PN}-staticdev += "${GOROOT_FINAL}/pkg"
@@ -82,23 +81,21 @@ GO_INSTALL = "\
 
 # go binaries don't use GNU_HASH. Known, disable warning
 # "QA Issue: No GNU_HASH in the elf binary: ..."
-INSANE_SKIP_${PN} += "ldflags"
 INSANE_SKIP_kubeadm += "ldflags"
+
+# Note `-ldflags -linkmode=external` to work around
+# https://github.com/golang/go/issues/19425
+GO_LDFLAGS += "-linkmode=external -extld ${HOST_PREFIX}gcc -extldflags '${HOST_CC_ARCH}${TOOLCHAIN_OPTIONS} ${LDFLAGS}'"
 
 do_configure () {
   :
 }
 
-do_compile[dirs] += "${B}"
-do_compile () {
-  set -x
-
+do_compile() {
   # upstream tarball includes uncleaned binaries (?!)
-  rm -v -f ${UNPACK}/cluster/gce/gci/mounter/mounter
+  rm -v -f ${S}/cluster/gce/gci/mounter/mounter
 
-  tar -C ${UNPACK} -cf - . | tar -C ${B} -xpf -
-
-  mkdir -p ${S}/pkg/generated
+  mkdir -p ${B}/pkg/generated
 
   GOOS="${BUILD_GOOS}" GOARCH="${BUILD_GOARCH}" \
   CC="${BUILD_CC}" \
@@ -107,30 +104,28 @@ do_compile () {
   CGO_LDFLAGS="${BUILD_LDFLAGS}" \
   make generated_files
 
-  # Note `-ldflags -linkmode=external` to work around
-  # https://github.com/golang/go/issues/19425
-  GOPATH=${S}:${STAGING_LIBDIR}/${TARGET_SYS}/go godep go install -ldflags "-linkmode=external -extld '${HOST_PREFIX}gcc' -extldflags '${HOST_CC_ARCH}${TOOLCHAIN_OPTIONS} ${LDFLAGS}'" -v ${GO_INSTALL}
+  go_do_compile
 
-  ${CC} ${CFLAGS} ${LDFLAGS} -Os -Wall -o ${B}/build/pause/pause ${B}/build/pause/pause.c
+  install -d ${B}/build/pause
+  ${CC} ${CFLAGS} ${LDFLAGS} -Os -Wall -o ${B}/build/pause/pause ${S}/build/pause/pause.c
 }
 
 do_install_append () {
-  rm -r ${D}${GOSRC_FINAL}/${GO_IMPORT}/_output
-
-  if [ -e "${D}${GOROOT_FINAL}/bin" ]; then
-     install -d -m 0755 "${D}${bindir}"
-     find ${D}${GOROOT_FINAL}/bin ! -type d -print0 | xargs -r0 mv --target-directory=${D}${bindir}
-     rmdir -p ${D}${GOROOT_FINAL}/bin || true
-  fi
-
   # -linkmode=external workaround above results in embedded RPATHs -> remove
   chrpath -d ${D}${bindir}/*
 
   install -D -m 0755 -t ${D}${bindir} ${B}/build/pause/pause
 
+  # Having this exist (but perhaps empty) silences a warning with
+  #  kubelet --pod-manifest-path=/etc/kubernetes/manifests
+  install -d -m 0755 ${D}${sysconfdir}/kubernetes/manifests
+
   install -D -m 0644 -t ${D}${systemd_system_unitdir} ${B}/build/debs/kubelet.service
   install -D -m 0644 ${B}/build/debs/kubeadm-10.conf ${D}${systemd_system_unitdir}/kubelet.service.d/10-kubeadm.conf
   install -D -m 0644 ${WORKDIR}/docker.conf ${D}${systemd_system_unitdir}/docker.service.d/10-kubelet.conf
+
+  install -d -m 0755 ${D}${sysconfdir}/modules-load.d
+  echo br-netfilter > ${D}${sysconfdir}/modules-load.d/kubelet.conf
 }
 
 BBCLASSEXTEND = "native nativesdk"
