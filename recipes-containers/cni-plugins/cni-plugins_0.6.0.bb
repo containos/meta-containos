@@ -9,7 +9,7 @@ SRC_URI[md5sum] = "1d4bfa3b2eeb584ae4b70bf7fa6326aa"
 SRC_URI[sha256sum] = "8589670f7f9b211a351dfcd211d4fe0b961d77283a7415443dc188f3dbf05668"
 
 LICENSE = "Apache-2.0"
-LIC_FILES_CHKSUM = "file://${UNPACK}/LICENSE;md5=e3fc50a88d0a364313df4b21ef20c29e"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=e3fc50a88d0a364313df4b21ef20c29e"
 
 inherit golang
 
