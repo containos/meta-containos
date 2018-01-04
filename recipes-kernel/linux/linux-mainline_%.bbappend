@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS_prepend := "${THISDIR}/linux:"
 SRC_URI += "file://docker.cfg"
 
 do_configure() {
