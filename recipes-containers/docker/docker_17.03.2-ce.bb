@@ -17,9 +17,12 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=aadc30f9c14d876ded7bedc0afd2d3d7"
 
 GO_IMPORT = "github.com/docker/docker"
-GO_INSTALL = ""
+GO_INSTALL = "\
+           ${GO_IMPORT}/cmd/docker \
+           ${GO_IMPORT}/cmd/dockerd \
+           "
 
-UNPACK_STRIP_PREFIX = "moby-${PV}"
+S = "${WORKDIR}/moby-${PV}"
 
 RDEPENDS_${PN} += "containerd"
 
@@ -64,14 +67,22 @@ DEPENDS += "\
 	xz \
 	"
 
-export DOCKER_GITCOMMIT = "v${PV}"
-export DOCKER_BUILDTAGS = "\
-	${@bb.utils.contains('DISTRO_FEATURES','selinux','selinux','',d)} \
-	"
+# go sqlite bindings use pthread symbols without adding linker directive
+CGO_LDFLAGS += "-lpthread"
 
-# seccomp should probably be a DISTRO_FEATURE...
-DOCKER_BUILDTAGS += "seccomp"
-DEPENDS += "libseccomp"
+PACKAGECONFIG ?= "seccomp pkcs11 \
+              ${@bb.utils.filter('DISTRO_FEATURES','selinux',d)} \
+              ${@bb.utils.contains('DISTRO_FEATURES','systemd','journald','',d)} \
+              "
+PACKAGECONFIG[journald] = "journald,,systemd"
+PACKAGECONFIG[seccomp] = "seccomp,,libseccomp"
+PACKAGECONFIG[apparmor] = "apparmor,,libapparmor"
+PACKAGECONFIG[selinux] = "selinux,,"
+PACKAGECONFIG[pkcs11] = "pkcs11,,libtool"
+
+DOCKER_BUILDTAGS = "daemon autogen sqlite_omit_load_extension"
+DOCKER_BUILDTAGS += "${PACKAGECONFIG_CONFARGS}"
+GOBUILDFLAGS += "-tags '${DOCKER_BUILDTAGS}'"
 
 SYSTEMD_SERVICE_${PN} = "docker.service docker.socket"
 
@@ -82,26 +93,25 @@ PACKAGES =+ "${PN}-client"
 
 FILES_${PN}-client += "${bindir}/docker ${datadir}/bash-completion"
 
-do_configure () {
-  :
+do_configure_append() {
+  cd ${B}/src/${GO_IMPORT} && \
+    GITCOMMIT="${DOCKER_GITCOMMIT}" \
+    VERSION="$(cat ./VERSION)" \
+    IAMSTATIC="${@not bool(d.getVar('GO_DYNLINK'))}" \
+    BUILDTIME="$(date --rfc-3339 ns 2> /dev/null | sed -e 's/ /T/')" \
+    bash -x ./hack/make/.go-autogen
 }
 
-do_compile () {
-  bash -x ./hack/make.sh dynbinary-client dynbinary-daemon
-}
-
-do_install () {
+do_install_append () {
   set -x
-  d=${B}/bundles/latest
+  b=${B}/src/${GO_IMPORT}
 
-  install -D -m 755 -t ${D}${bindir} $d/dynbinary-daemon/dockerd $d/dynbinary-client/docker
-
-  install -D -m 644 -t ${D}${datadir}/bash-completion/completions ${B}/contrib/completion/bash/docker
+  install -D -m 644 -t ${D}${datadir}/bash-completion/completions $b/contrib/completion/bash/docker
 
   install -d -m 700 ${D}${localstatedir}/lib/docker
 
   for f in ${SYSTEMD_SERVICE_${PN}}; do
-    install -D -m 644 ${B}/contrib/init/systemd/$f ${D}${systemd_system_unitdir}/$f
+    install -D -m 644 $b/contrib/init/systemd/$f ${D}${systemd_system_unitdir}/$f
   done
 
   # We use systemd >= 226, so enable this option
