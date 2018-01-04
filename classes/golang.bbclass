@@ -1,93 +1,59 @@
 # This is for building go-based code
+#
+# Just like go.bbclass, only with ${S} pointing to the source
+# directory directly rather than $GOROOT
 
-inherit golang-base
+inherit go
 
-# x32 ABI is not supported on go compiler so far
-COMPATIBLE_HOST_linux-gnux32 = "null"
-# ppc32 is not supported in go compilers
-COMPATIBLE_HOST_powerpc = "null"
+# go.bbclass doesn't set these?!
+export GOOS = "${TARGET_GOOS}"
+export GOARCH = "${TARGET_GOARCH}"
 
-# FIXME: go-cross shouldn't exist. go >=1.5 is capable of cross
-# compiling from go-native directly
-DEPENDS += "go-cross-${TARGET_ARCH}"
-DEPENDS_class-native += "go-native"
+do_configure[cleandirs] = "${B}/src/${GO_IMPORT}"
+golang_do_configure() {
+	# This _should_ be as easy as:
+        #     ln -snf ${S} ${B}/src/${GO_IMPORT}
+	# ... except go refuses to follow symlinks when expanding
+        # package patterns :(
 
-export CGO_ENABLED = "1"
-export CGO_CFLAGS = "${CFLAGS}"
-export CGO_CPPFLAGS = "${CPPFLAGS}"
-export CGO_CXXFLAGS = "${CXXFLAGS}"
-export CGO_LDFLAGS = "${LDFLAGS}"
-
-GO = "go"
-
-GO_FLAGS ?= ""
-GO_GCFLAGS ?= ""
-GO_ASMFLAGS ?= ""
-GO_LDFLAGS ?= ""
-
-# FIXME: remove $TARGET_SYS from this path - go already prefixes
-# arch-specific libs
-export GOROOT = "${STAGING_LIBDIR_NATIVE}/${TARGET_SYS}/go"
-GOROOT_class-native = "${STAGING_LIBDIR_NATIVE}/go"
-
-# FIXME: remove $TARGET_SYS from this path - go already prefixes
-# arch-specific libs
-GOROOT_FINAL = "${libdir}/${TARGET_SYS}/go"
-
-# go requires a particular source directory location
-GOPATH_TOP = "${WORKDIR}/gopath"
-S = "${GOPATH_TOP}/src/${GO_IMPORT}"
-export GOPATH = "${GOPATH_TOP}:${STAGING_LIBDIR}/${TARGET_SYS}/go"
-UNPACK_STRIP_PREFIX = "${BP}"
+        if [ ${B} != ${S} ]; then
+        	tar -C ${S} -cf - --exclude-vcs . | tar -C ${B}/src/${GO_IMPORT} -xf -
+        fi
+}
 
 SRC_URI ??= "git://${GO_IMPORT}.git"
 
-GO_INSTALL ?= "${GO_IMPORT}/..."
+# Undo go_do_unpack changes
+python golang_do_unpack() {
+    src_uri = (d.getVar('SRC_URI') or "").split()
+    if len(src_uri) == 0:
+        return
 
-do_unpack[dirs] += "${S}"
-base_do_unpack_append() {
-    s = d.getVar("S")
-    unpackdir = os.path.join(d.getVar("WORKDIR"), d.getVar("UNPACK_STRIP_PREFIX"))
-    if s != unpackdir:
-        bb.utils.mkdirhier(os.path.dirname(s))
-        bb.utils.remove(s, recurse=True)
-        import shutil
-        shutil.move(unpackdir, s)
+    try:
+        fetcher = bb.fetch2.Fetch(src_uri, d)
+        fetcher.unpack(d.getVar('WORKDIR'))
+    except bb.fetch2.BBFetchException as e:
+        bb.fatal(str(e))
 }
 
-go_do_compile() {
-  if [ "${GO_INSTALL}" != "" ]; then
-    ${GO} install -x -asmflags "${GO_ASMFLAGS}" -gcflags "${GO_GCFLAGS}" -ldflags "${GO_LDFLAGS}" ${GO_FLAGS} ${GO_INSTALL}
-  fi
+golang_do_install() {
+	install -d ${D}${libdir}/go/src/${GO_IMPORT}
+        tar -C ${B} -cf - pkg | tar -C ${D}${libdir}/go --no-same-owner -xf -
+
+        ( cd ${B}/src/${GO_IMPORT} && \
+          find . -path ./vendor -prune -o \
+        	-type f -name \*.go -print > ${WORKDIR}/gosrc.list )
+        tar -C ${B}/src/${GO_IMPORT} -cf - --exclude-vcs --verbatim-files-from -T ${WORKDIR}/gosrc.list | \
+        	tar -C ${D}${libdir}/go/src/${GO_IMPORT} --no-same-owner -xf -
+
+	for file in ${B}/${GO_BUILD_BINDIR}/*; do
+        	if [ -f $file ]; then
+                	install -D -m 0755 -t ${D}${bindir}/ $file
+                fi
+        done
 }
 
-do_compile() {
-  go_do_compile
-}
-
-# go binaries don't use GNU_HASH. Known, disable "QA Issue: No GNU_HASH in the elf binary: ..." warnings.
-INSANE_SKIP_${PN} += "ldflags"
-
-FILES_${PN}-staticdev += "${GOROOT_FINAL}/src ${GOROOT_FINAL}/pkg"
-
-go_do_install() {
-  for file in ${GOPATH_TOP}/bin/${GOOS}_${GOARCH}/* ${GOPATH_TOP}/bin/*; do
-    if [ -f "$file" ]; then
-      install -D -m 0755 -t ${D}${bindir}/ $file
-    fi
-  done
-
-  if [ -d ${GOPATH_TOP}/pkg/${GOOS}_${GOARCH}/${GO_IMPORT} ]; then
-    install -d ${D}${GOROOT_FINAL}/pkg/${GOOS}_${GOARCH}/${GO_IMPORT}
-    tar -C ${GOPATH_TOP}/pkg/${GOOS}_${GOARCH}/${GO_IMPORT} -cf - --exclude=./vendor . | \
-      tar -C ${D}${GOROOT_FINAL}/pkg/${GOOS}_${GOARCH}/${GO_IMPORT} -xvf -
-    chown -R root:root ${D}${GOROOT_FINAL}/pkg
-  fi
-}
-
-do_install() {
-  go_do_install
-}
+EXPORT_FUNCTIONS do_configure do_unpack do_install
 
 inherit sanity
 
