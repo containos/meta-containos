@@ -6,18 +6,16 @@ operations, and scaling of containerized applications."
 
 SRC_URI = "\
 	https://github.com/kubernetes/kubernetes/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
+        file://git-archive.patch \
 	file://docker.conf \
 	"
-SRC_URI[md5sum] = "432289972395832afaa7e96b31b3fa68"
-SRC_URI[sha256sum] = "356e15aacaa0a5db4c3f930d44dcfe4f61eed6379d529a6b7b1661228b693c27"
+SRC_URI[md5sum] = "c35ab1148b9906d1920a5d208a1c329e"
+SRC_URI[sha256sum] = "ac46cadd3e0221582936cf901f426104793fe98eff7f06dfb886a765e4d57d0d"
 
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 inherit golang systemd
-
-DEPENDS += "godep-native"
-GO = "godep go"
 
 # Additional dependencies for `make generated-files`
 DEPENDS += "coreutils-native rsync-native"
@@ -49,6 +47,7 @@ FILES_kubelet += "\
 	${systemd_system_unitdir}/kubelet.service.d/10-kubeadm.conf \
 	${sysconfdir}/kubernetes/manifests \
 	${sysconfdir}/modules-load.d/kubelet.conf \
+        ${localstatedir}/lib/kubelet \
 	"
 FILES_kube-proxy += "${bindir}/kube-proxy"
 FILES_kubeadm += "\
@@ -65,17 +64,17 @@ SYSTEMD_SERVICE_kubelet = "kubelet.service"
 # entirely and just do our own regular golang build.
 GO_IMPORT = "k8s.io/kubernetes"
 GO_INSTALL = "\
-	 ${GO_IMPORT}/cmd/kubelet \
 	 ${GO_IMPORT}/cmd/kube-proxy \
 	 ${GO_IMPORT}/cmd/kube-apiserver \
 	 ${GO_IMPORT}/cmd/kube-controller-manager \
 	 ${GO_IMPORT}/cmd/cloud-controller-manager \
-	 ${GO_IMPORT}/cmd/kubectl \
+	 ${GO_IMPORT}/cmd/kubelet \
 	 ${GO_IMPORT}/cmd/kubeadm \
 	 ${GO_IMPORT}/cmd/hyperkube \
 	 ${GO_IMPORT}/vendor/k8s.io/kube-aggregator \
 	 ${GO_IMPORT}/vendor/k8s.io/apiextensions-apiserver \
 	 ${GO_IMPORT}/plugin/cmd/kube-scheduler \
+	 ${GO_IMPORT}/cmd/kubectl \
 	 ${GO_IMPORT}/federation/cmd/kubefed \
 	 "
 
@@ -85,34 +84,35 @@ INSANE_SKIP_kubeadm += "ldflags"
 
 # Note `-ldflags -linkmode=external` to work around
 # https://github.com/golang/go/issues/19425
-GO_LDFLAGS += "-linkmode=external -extld ${HOST_PREFIX}gcc -extldflags '${HOST_CC_ARCH}${TOOLCHAIN_OPTIONS} ${LDFLAGS}'"
+GO_LINKMODE = "--linkmode=external"
 
-do_configure () {
-  :
-}
-
-do_compile() {
+do_configure_prepend() {
   # upstream tarball includes uncleaned binaries (?!)
   rm -v -f ${S}/cluster/gce/gci/mounter/mounter
+}
 
-  mkdir -p ${B}/pkg/generated
+do_compile_prepend() {
+  mkdir -p ${B}/src/${GO_IMPORT}/pkg/generated
 
   GOOS="${BUILD_GOOS}" GOARCH="${BUILD_GOARCH}" \
   CC="${BUILD_CC}" \
   CPP="${BUILD_CPP}" \
   CGO_CFLAGS="${BUILD_CFLAGS}" \
   CGO_LDFLAGS="${BUILD_LDFLAGS}" \
-  make generated_files
+  KUBE_VERBOSE=5 \
+  make -C ${B}/src/${GO_IMPORT} generated_files
+}
 
-  go_do_compile
-
+do_compile_append() {
   install -d ${B}/build/pause
   ${CC} ${CFLAGS} ${LDFLAGS} -Os -Wall -o ${B}/build/pause/pause ${S}/build/pause/pause.c
 }
 
 do_install_append () {
-  # -linkmode=external workaround above results in embedded RPATHs -> remove
-  chrpath -d ${D}${bindir}/*
+  b=${B}/src/${GO_IMPORT}
+
+  d=${D}${libdir}/go/src/${GO_IMPORT}
+  rm -r $d/cluster $d/test $d/hack $d/staging
 
   install -D -m 0755 -t ${D}${bindir} ${B}/build/pause/pause
 
@@ -120,9 +120,11 @@ do_install_append () {
   #  kubelet --pod-manifest-path=/etc/kubernetes/manifests
   install -d -m 0755 ${D}${sysconfdir}/kubernetes/manifests
 
-  install -D -m 0644 -t ${D}${systemd_system_unitdir} ${B}/build/debs/kubelet.service
-  install -D -m 0644 ${B}/build/debs/kubeadm-10.conf ${D}${systemd_system_unitdir}/kubelet.service.d/10-kubeadm.conf
+  install -D -m 0644 -t ${D}${systemd_system_unitdir} $b/build/debs/kubelet.service
+  install -D -m 0644 $b/build/debs/kubeadm-10.conf ${D}${systemd_system_unitdir}/kubelet.service.d/10-kubeadm.conf
   install -D -m 0644 ${WORKDIR}/docker.conf ${D}${systemd_system_unitdir}/docker.service.d/10-kubelet.conf
+
+  install -d -m 0755 ${D}${localstatedir}/lib/kubelet
 
   install -d -m 0755 ${D}${sysconfdir}/modules-load.d
   echo br-netfilter > ${D}${sysconfdir}/modules-load.d/kubelet.conf
