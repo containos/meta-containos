@@ -94,7 +94,7 @@ PACKAGES =+ "${PN}-client"
 FILES_${PN}-client += "${bindir}/docker ${datadir}/bash-completion"
 
 do_configure_append() {
-  cd ${B}/src/${GO_IMPORT} && \
+  cd ${S} && \
     GITCOMMIT="${DOCKER_GITCOMMIT}" \
     VERSION="$(cat ./VERSION)" \
     IAMSTATIC="${@not bool(d.getVar('GO_DYNLINK'))}" \
@@ -104,14 +104,13 @@ do_configure_append() {
 
 do_install_append () {
   set -x
-  b=${B}/src/${GO_IMPORT}
 
-  install -D -m 644 -t ${D}${datadir}/bash-completion/completions $b/contrib/completion/bash/docker
+  install -D -m 644 -t ${D}${datadir}/bash-completion/completions ${S}/contrib/completion/bash/docker
 
   install -d -m 700 ${D}${localstatedir}/lib/docker
 
   for f in ${SYSTEMD_SERVICE_${PN}}; do
-    install -D -m 644 $b/contrib/init/systemd/$f ${D}${systemd_system_unitdir}/$f
+    install -D -m 644 ${S}/contrib/init/systemd/$f ${D}${systemd_system_unitdir}/$f
   done
 
   # We use systemd >= 226, so enable this option
