@@ -34,3 +34,9 @@ REGEX_pn-godep = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
 
 REGEX_URI_pn-kubernetes = "https://github.com/kubernetes/kubernetes/releases"
 REGEX_pn-kubernetes = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
+
+REGEX_URI_pn-docker-containerd = "https://github.com/docker/containerd/releases"
+REGEX_pn-docker-containerd = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
+
+REGEX_URI_pn-docker-runc = "https://github.com/docker/runc/releases"
+REGEX_pn-docker-runc = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
