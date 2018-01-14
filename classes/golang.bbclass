@@ -3,25 +3,32 @@
 # Just like go.bbclass, only with ${S} pointing to the source
 # directory directly rather than $GOROOT
 
-inherit go
-
 # go.bbclass doesn't set these?!
 export GOOS = "${TARGET_GOOS}"
 export GOARCH = "${TARGET_GOARCH}"
 
-do_configure[cleandirs] = "${B}/src/${GO_IMPORT}"
-golang_do_configure() {
-	# This _should_ be as easy as:
-        #     ln -snf ${S} ${B}/src/${GO_IMPORT}
-	# ... except go refuses to follow symlinks when expanding
-        # package patterns :(
+# go.bbclass includes "-ldflags='...'" in value for GO_LDFLAGS, which
+# makes it impossible to append more LDFLAGS :(
+GO_LDFLAGS = "${GO_RPATH} ${GO_LINKMODE} -extldflags '${GO_EXTLDFLAGS}'"
+export GOBUILDFLAGS = '-v -ldflags="${GO_LDFLAGS}"'
 
-        if [ ${B} != ${S} ]; then
-        	tar -C ${S} -cf - --exclude-vcs . | tar -C ${B}/src/${GO_IMPORT} -xf -
-        fi
-}
+# Note: Needs to be explicit package names, and not a ./... wildcard.
+# See comment in do_configure below for why.
+GO_INSTALL ?= "${GO_IMPORT}"
 
 SRC_URI ??= "git://${GO_IMPORT}.git"
+
+inherit go
+
+golang_do_configure() {
+	# NB: go developers hate symlinks.  The "foo/..." wildcard
+	# will deliberately _not_ follow symlinks, but all explicit
+	# paths (imports and command line args) _will_.	 So the
+	# following works for everything, except unfortunately not
+	# "..." wildcards :(
+	mkdir -p $(dirname ${B}/src/${GO_IMPORT})
+	ln -snf ${S} ${B}/src/${GO_IMPORT}
+}
 
 # Undo go_do_unpack changes
 python golang_do_unpack() {
@@ -40,10 +47,10 @@ golang_do_install() {
 	install -d ${D}${libdir}/go/src/${GO_IMPORT}
         tar -C ${B} -cf - pkg | tar -C ${D}${libdir}/go --no-same-owner -xf -
 
-        ( cd ${B}/src/${GO_IMPORT} && \
+        ( cd ${S} && \
           find . -path ./vendor -prune -o \
         	-type f -name \*.go -print > ${WORKDIR}/gosrc.list )
-        tar -C ${B}/src/${GO_IMPORT} -cf - --exclude-vcs --verbatim-files-from -T ${WORKDIR}/gosrc.list | \
+        tar -C ${S} -cf - --exclude-vcs --verbatim-files-from -T ${WORKDIR}/gosrc.list | \
         	tar -C ${D}${libdir}/go/src/${GO_IMPORT} --no-same-owner -xf -
 
 	for file in ${B}/${GO_BUILD_BINDIR}/*; do
@@ -60,4 +67,6 @@ inherit sanity
 python () {
   if not d.getVar("GO_IMPORT", False):
     raise_sanity_error("%s: GO_IMPORT should be set" % d.getVar("P", True), d)
+  if "..." in d.getVar("GO_INSTALL", True):
+    raise_sanity_error("%s: GO_INSTALL may not use ... wildcard" % d.getVar("P", True), d)
 }
