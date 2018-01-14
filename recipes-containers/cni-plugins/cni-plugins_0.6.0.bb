@@ -13,23 +13,26 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=e3fc50a88d0a364313df4b21ef20c29e"
 
 inherit golang
 
+S = "${WORKDIR}/plugins-${PV}"
+
+# cni plugins are considered externally-installed
+bindir = "/opt/cni/bin"
+
 GO_IMPORT = "github.com/containernetworking/plugins"
 GO_INSTALL = "\
-	${GO_IMPORT}/plugins/meta/... \
-	${GO_IMPORT}/plugins/main/... \
-	${GO_IMPORT}/plugins/ipam/... \
-	${GO_IMPORT}/plugins/sample/... \
+	${GO_IMPORT}/plugins/meta/flannel \
+	${GO_IMPORT}/plugins/meta/portmap \
+	${GO_IMPORT}/plugins/meta/tuning \
+	${GO_IMPORT}/plugins/main/bridge \
+	${GO_IMPORT}/plugins/main/vlan \
+	${GO_IMPORT}/plugins/main/ptp \
+	${GO_IMPORT}/plugins/main/macvlan \
+	${GO_IMPORT}/plugins/main/ipvlan \
+	${GO_IMPORT}/plugins/main/loopback \
+	${GO_IMPORT}/plugins/ipam/dhcp \
+	${GO_IMPORT}/plugins/ipam/host-local \
 	"
 
 FILES_${PN}-staticdev += "${libexecdir}/cni/sample"
-
-# go binaries don't use GNU_HASH. Known, disable warning
-# "QA Issue: No GNU_HASH in the elf binary: ..."
-INSANE_SKIP_${PN} += "ldflags"
-INSANE_SKIP_${PN}-staticdev += "ldflags"
-
-do_install () {
-  install -D -m 755 -t ${D}/opt/cni/bin $(find ${S}/bin -type f)
-}
 
 BBCLASSEXTEND = "native nativesdk"
