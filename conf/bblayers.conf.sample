@@ -12,6 +12,7 @@ BBLAYERS ?= " \
   ${gittop}/meta-openembedded/meta-networking \
   ${gittop}/meta-openembedded/meta-filesystems \
   ${gittop}/meta-openembedded/meta-python \
+  ${gittop}/meta-rauc \
   ${gittop}/meta-sunxi \
   ${gittop}/meta-containos \
   "

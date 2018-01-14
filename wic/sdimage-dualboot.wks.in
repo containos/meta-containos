@@ -1,0 +1,24 @@
+# SD card image, using u-boot, with dual root partitions
+#
+# See also http://linux-sunxi.org/Bootable_SD_card#SD_Card_Layout
+#
+# Numbers in kiB (*1024)
+# Start  Size
+#    0     8   reserved
+#    8    32   SPL
+#   40   504   u-boot
+#  544   128   u-boot env
+# 1024  2048   u-boot script+fdtfile partition
+# 4096         first partition
+#
+
+part SPL --source=rawcopy --sourceparams="file=${SPL_BINARY}" --ondisk=mmcblk --no-table --align=8
+# SPL_BINARY includes u-boot for this arch
+#part u-boot --source=rawcopy --sourceparams="file=u-boot.img" --ondisk=mmcblk --no-table --align=69
+
+part /boot/uboot --ondisk=mmcblk0 --fstype=vfat --label=uboot --align=1024 --fixed-size=2M --source=bootimg-partition --active
+part / --ondisk=mmcblk0 --fstype=ext4 --label=root --align 4096 --fixed-size=${ROOT_SIZE}K --source=rootfs
+part   --ondisk=mmcblk0 --fstype=ext4 --label=root --align 4096 --fixed-size=${ROOT_SIZE}K
+
+# GPT conflicts with SPL 8kB offset area :(
+bootloader --ptable=msdos

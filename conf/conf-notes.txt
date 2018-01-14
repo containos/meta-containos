@@ -2,6 +2,7 @@ Common targets are:
     containos-image-base
     containos-image-dev
     containos-image-test
+    containos-update-bundle
     meta-toolchain
 
 You can also run generated images with a command like 'runqemu qemux86'
