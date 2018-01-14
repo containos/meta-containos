@@ -86,13 +86,17 @@ INSANE_SKIP_kubeadm += "ldflags"
 # https://github.com/golang/go/issues/19425
 GO_LINKMODE = "--linkmode=external"
 
+export KUBE_GO_PACKAGE = "${GO_IMPORT}"
+GO_LDFLAGS += "$(bash -c '. ${S}/hack/lib/version.sh; kube::version::ldflags')"
+
 do_configure_prepend() {
   # upstream tarball includes uncleaned binaries (?!)
   rm -v -f ${S}/cluster/gce/gci/mounter/mounter
 }
 
 do_compile_prepend() {
-  mkdir -p ${B}/src/${GO_IMPORT}/pkg/generated
+  set -x
+  mkdir -p ${S}/pkg/generated
 
   GOOS="${BUILD_GOOS}" GOARCH="${BUILD_GOARCH}" \
   CC="${BUILD_CC}" \
@@ -100,28 +104,26 @@ do_compile_prepend() {
   CGO_CFLAGS="${BUILD_CFLAGS}" \
   CGO_LDFLAGS="${BUILD_LDFLAGS}" \
   KUBE_VERBOSE=5 \
-  make -C ${B}/src/${GO_IMPORT} generated_files
+  make -C ${S} generated_files
 }
 
 do_compile_append() {
-  install -d ${B}/build/pause
-  ${CC} ${CFLAGS} ${LDFLAGS} -Os -Wall -o ${B}/build/pause/pause ${S}/build/pause/pause.c
+  install -d ${B}/build
+  ${CC} ${CFLAGS} ${LDFLAGS} -Os -Wall -o ${B}/build/pause ${S}/build/pause/pause.c
 }
 
 do_install_append () {
-  b=${B}/src/${GO_IMPORT}
-
   d=${D}${libdir}/go/src/${GO_IMPORT}
   rm -r $d/cluster $d/test $d/hack $d/staging
 
-  install -D -m 0755 -t ${D}${bindir} ${B}/build/pause/pause
+  install -D -m 0755 -t ${D}${bindir} ${B}/build/pause
 
   # Having this exist (but perhaps empty) silences a warning with
   #  kubelet --pod-manifest-path=/etc/kubernetes/manifests
   install -d -m 0755 ${D}${sysconfdir}/kubernetes/manifests
 
-  install -D -m 0644 -t ${D}${systemd_system_unitdir} $b/build/debs/kubelet.service
-  install -D -m 0644 $b/build/debs/kubeadm-10.conf ${D}${systemd_system_unitdir}/kubelet.service.d/10-kubeadm.conf
+  install -D -m 0644 -t ${D}${systemd_system_unitdir} ${S}/build/debs/kubelet.service
+  install -D -m 0644 ${S}/build/debs/kubeadm-10.conf ${D}${systemd_system_unitdir}/kubelet.service.d/10-kubeadm.conf
   install -D -m 0644 ${WORKDIR}/docker.conf ${D}${systemd_system_unitdir}/docker.service.d/10-kubelet.conf
 
   install -d -m 0755 ${D}${localstatedir}/lib/kubelet
