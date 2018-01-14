@@ -18,22 +18,23 @@ LIC_FILES_CHKSUM = "file://LICENSE.code;md5=aadc30f9c14d876ded7bedc0afd2d3d7"
 S = "${WORKDIR}/git"
 
 GO_IMPORT = "github.com/docker/containerd"
-GO_INSTALL = ""
+GO_INSTALL = "\
+           ${GO_IMPORT}/ctr \
+           ${GO_IMPORT}/containerd \
+           ${GO_IMPORT}/containerd-shim \
+           "
 GIT_COMMIT = "v${PV}"
-EXTRA_OEMAKE += "GIT_COMMIT=${GIT_COMMIT} LDFLAGS=${GO_LDFLAGS}"
+GO_LDFLAGS += "-X github.com/docker/containerd.GitCommit=${GIT_COMMIT}"
 
 RDEPENDS_${PN} += "runc"
 
 DEPENDS += "protobuf-native"
 
-do_compile () {
-  cd ${B}/src/${GO_IMPORT} && oe_runmake LDFLAGS= all
-}
+# doesn't use a standard vendor/ dir structure :(
+GOPATH .= ":${S}/vendor"
 
-do_install () {
+do_install_append () {
   set -x
-
-  install -D -m 0755 -t ${D}${bindir} ${B}/src/${GO_IMPORT}/bin/*
 
   ln -s containerd ${D}${bindir}/docker-containerd
   ln -s containerd-shim ${D}${bindir}/docker-containerd-shim
