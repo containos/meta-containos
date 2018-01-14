@@ -7,12 +7,7 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 # FIXME: do_image below doesn't support semicolon-based rename feature.
 IMAGE_BOOT_FILES ??= ""
 
-# Image size in kiB
-IMAGE_SIZE = "2048"
-
 IMGDEPLOYDIR = "${WORKDIR}/deploy-${PN}-image-complete"
-
-MKDOSFS_ARGS ??= "-S 512"
 
 do_rootfs[depends] += "virtual/bootloader:do_deploy"
 
