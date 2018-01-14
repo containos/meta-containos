@@ -7,12 +7,14 @@ SRC_URI += "\
   file://var-lib.mount \
   file://kubelet.conf \
   file://kubelet.path \
+  file://system.conf \
   "
 
 inherit systemd
 
-systemd_networkdir = "${base_libdir}/systemd/network"
-systemd_timesyncdconfdir = "${base_libdir}/systemd/timesyncd.conf.d"
+systemd_networkdir = "${systemd_unitdir}/network"
+systemd_timesyncdconfdir = "${systemd_unitdir}/timesyncd.conf.d"
+systemd_systemconfdir = "${systemd_unitdir}/system.conf.d"
 
 SYSTEMD_PACKAGES += "${PN}"
 SYSTEMD_SERVICE_${PN} += "kubelet.path ${EXTRA_SYSTEMD_SERVICES}"
@@ -26,6 +28,9 @@ do_install_append() {
   ln -s ../run/systemd/resolve/resolv.conf ${D}${sysconfdir}/resolv.conf
   ln -s ../usr/share/zoneinfo/UTC ${D}${sysconfdir}/localtime
   ln -sf ../proc/self/mounts ${D}${sysconfdir}/mtab
+
+  install -d ${D}${systemd_systemconfdir}
+  install -m 644 ${WORKDIR}/system.conf ${D}${systemd_systemconfdir}/50-containos.conf
 
   install -d ${D}${systemd_networkdir}
   install -m 644 ${WORKDIR}/network-mac-for-usb ${D}${systemd_networkdir}/90-mac-for-usb.link
