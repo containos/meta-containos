@@ -1,0 +1,31 @@
+#!/bin/sh
+
+: ${TOOLBOX_IMAGE:=debian:testing}
+: ${LOGNAME:=${USER}}
+
+if [ -z "$TZ" -a -r /etc/timezone ]; then
+    TZ=$(cat /etc/timezone)
+fi
+
+export TERM LOGNAME TZ
+
+if [ -t 0 ]; then
+    tty="--tty"
+else
+    tty=""
+fi
+
+exec docker run \
+     --rm \
+     -i \
+     $tty \
+     --privileged \
+     --net=host \
+     --pid=host \
+     --ipc=host \
+     -v /:/rootfs \
+     -e TZ \
+     -e TERM \
+     -e LOGNAME \
+     $TOOLBOX_IMAGE \
+     "$@"
