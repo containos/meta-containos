@@ -10,8 +10,8 @@ SRC_URI = "\
 	https://github.com/moby/moby/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
         file://run-ptest \
 	"
-SRC_URI[md5sum] = "4fde7a13f2085e18066e96d3532d57b0"
-SRC_URI[sha256sum] = "171a65c44340c7b5710da6948b0afb9306b126b36c531ddab1a3653fd2980aaa"
+SRC_URI[md5sum] = "a064b84fda9a903ce23b2c8818d32337"                            
+SRC_URI[sha256sum] = "fb7052a4c565d2fd7ad4f63dc17c5e3d9b0896e18f5cafdc2c78f9c5974a86b3"                                                                         
 
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=aadc30f9c14d876ded7bedc0afd2d3d7"
