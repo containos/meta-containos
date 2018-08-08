@@ -8,16 +8,7 @@ passfail () {
     fi
 }
 
-case $(uname -m) in
-    armv7l) arch=arm32v7 ;;
-    arm*) arch=arm32v6 ;;
-    aarch64*) arch=arm64v8 ;;
-    x86_64) arch=amd64 ;;
-    ppc64el|powerpc64el) arch=ppc64le ;;
-    *) echo "FAIL: Don't know dockerhub arch for $(uname -m)" ;;
-esac
-
-docker run $arch/hello-world
+docker run hello-world
 
 echo "$(passfail $?): docker run hello-world"
 
