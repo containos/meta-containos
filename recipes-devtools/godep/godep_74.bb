@@ -2,6 +2,9 @@ HOMEPAGE = "http://godoc.org/github.com/tools/godep"
 SECTION = "devel"
 SUMMARY = "dependency tool for go"
 
+UPSTREAM_CHECK_URI = "https://github.com/tools/godep/releases"
+UPSTREAM_CHECK_REGEX = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
+
 inherit golang
 
 SRC_URI = "\

@@ -5,6 +5,9 @@ SECTION = "libs/security"
 LICENSE = "LGPLv2.1"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=7c13b3376cea0ce68d2d2da0a1b3a72c"
 
+UPSTREAM_CHECK_URI = "https://github.com/seccomp/libseccomp/releases"
+UPSTREAM_CHECK_REGEX = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
+
 SRC_URI = "https://github.com/seccomp/libseccomp/releases/download/v${PV}/libseccomp-${PV}.tar.gz \
           "
 

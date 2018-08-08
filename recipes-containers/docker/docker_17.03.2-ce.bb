@@ -4,6 +4,9 @@ SUMMARY = "Linux container runtime"
 DESCRIPTION = "Docker is an open source project to pack, ship and run any \
 application as a lightweight container."
 
+UPSTREAM_CHECK_URI = "https://github.com/moby/moby/releases"
+UPSTREAM_CHECK_REGEX = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
+
 inherit golang systemd useradd pkgconfig ptest
 
 SRC_URI = "\
