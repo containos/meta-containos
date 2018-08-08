@@ -11,8 +11,8 @@ UPSTREAM_CHECK_REGEX = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
 SRC_URI = "https://github.com/seccomp/libseccomp/releases/download/v${PV}/libseccomp-${PV}.tar.gz \
           "
 
-SRC_URI[md5sum] = "e6f3e84921ef9c2e9188681963f0943f"
-SRC_URI[sha256sum] = "ff5bdd2168790f1979e24eaa498f8606c2f2d96f08a8dc4006a2e88affa4562b"
+SRC_URI[md5sum] = "e6b4e463857fe05c09dc56ec3bcaef84"
+SRC_URI[sha256sum] = "7fc28f4294cc72e61c529bedf97e705c3acf9c479a8f1a3028d4cd2ca9f3b155"
 
 inherit autotools pkgconfig
 
