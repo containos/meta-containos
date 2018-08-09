@@ -7,10 +7,9 @@ application as a lightweight container."
 UPSTREAM_CHECK_URI = "https://github.com/moby/moby/releases"
 UPSTREAM_CHECK_REGEX = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
 
-inherit golang systemd useradd pkgconfig ptest
+inherit golang systemd useradd pkgconfig
 
 SRC_URI = "https://github.com/moby/moby/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
-           file://run-ptest \
            file://0001-Extend-timeout-while-waiting-for-containerd-to-start.patch \
            "
 SRC_URI[md5sum] = "a064b84fda9a903ce23b2c8818d32337"                            
