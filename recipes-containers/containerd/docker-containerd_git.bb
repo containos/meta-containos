@@ -4,6 +4,9 @@ SUMMARY = "An open and reliable container runtime"
 DESCRIPTION = "containerd is a daemon to control runC, built for \
 performance and density."
 
+UPSTREAM_CHECK_URI = "https://github.com/docker/containerd/releases"
+UPSTREAM_CHECK_REGEX = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
+
 inherit golang
 
 SRC_URI = "git://github.com/docker/containerd.git;branch=docker-1.13.x"

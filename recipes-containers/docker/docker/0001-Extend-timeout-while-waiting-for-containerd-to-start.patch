@@ -1,0 +1,28 @@
+From 5d53ea32b4647bfb2e55b5f347caff3342cdb21a Mon Sep 17 00:00:00 2001
+From: Angus Lees <gus@inodes.org>
+Date: Thu, 9 Aug 2018 18:12:36 +1000
+Subject: [PATCH] Extend timeout while waiting for containerd to start up
+
+Default timeout is 3 attempts with 0.5s between each, which is too
+aggressive for emulated qemuarm environment.  This patch just naively
+extends this to *30* attempts (ie 15s minimum).
+---
+ libcontainerd/remote_unix.go | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libcontainerd/remote_unix.go b/libcontainerd/remote_unix.go
+index 64a2864..bf1bead 100644
+--- a/libcontainerd/remote_unix.go
++++ b/libcontainerd/remote_unix.go
+@@ -33,7 +33,7 @@ import (
+ )
+ 
+ const (
+-	maxConnectionRetryCount      = 3
++	maxConnectionRetryCount      = 30
+ 	containerdHealthCheckTimeout = 3 * time.Second
+ 	containerdShutdownTimeout    = 15 * time.Second
+ 	containerdBinary             = "docker-containerd"
+-- 
+2.11.0
+

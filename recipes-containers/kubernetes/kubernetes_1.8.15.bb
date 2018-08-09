@@ -4,6 +4,9 @@ SUMMARY = "container orchestration engine"
 DESCRIPTION = "Kubernetes is an open-source system for automating deployment, \
 operations, and scaling of containerized applications."
 
+UPSTREAM_CHECK_URI = "https://github.com/kubernetes/kubernetes/releases"
+UPSTREAM_CHECK_REGEX = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
+
 SRC_URI = "\
 	https://github.com/kubernetes/kubernetes/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
 	file://docker.conf \
