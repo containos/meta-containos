@@ -26,7 +26,6 @@ do_install_append() {
   set -x
 
   ln -s ../run/systemd/resolve/resolv.conf ${D}${sysconfdir}/resolv.conf
-  ln -s ../usr/share/zoneinfo/UTC ${D}${sysconfdir}/localtime
   ln -sf ../proc/self/mounts ${D}${sysconfdir}/mtab
 
   install -d ${D}${systemd_systemconfdir}

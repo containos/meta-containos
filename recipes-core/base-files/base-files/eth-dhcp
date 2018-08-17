@@ -1,5 +1,8 @@
 [Match]
 Name=eth*
+# Assume the ip= kernel argument implies the user wants explicit control.
+# In particular, this is used by OpenEmbedded runqemu/testimage
+KernelCommandLine=!ip
 
 [Network]
 DHCP=yes

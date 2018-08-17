@@ -25,6 +25,7 @@ case "$1" in
     slot-post-install)
 	test "$RAUC_SLOT_CLASS" = rootfs || exit 0
 
+	slotcp /etc/hostname
 	slotcp /etc/machine-id
 
 	slotcp /etc/dropbear/dropbear_rsa_host_key

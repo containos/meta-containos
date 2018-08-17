@@ -1,0 +1,11 @@
+--- a/conf/install-sh.bak	2018-07-19 12:23:02.534537971 +1000
++++ b/conf/install-sh	2018-07-19 12:24:15.582731039 +1000
+@@ -81,7 +81,7 @@
+ # Check if the file is now really owned by 'root' to avoid the Win95 probems
+ #
+ if [ $rootflag = TRUE ]; then
+-	ls -l ${dsttmp} 2> /dev/null | grep root > /dev/null || rootflag=FALSE
++	stat -c '%U' ${dsttmp} 2> /dev/null | grep root > /dev/null || rootflag=FALSE
+ fi
+ rm -f ${dsttmp}
+ rm -rf ${dstdir}

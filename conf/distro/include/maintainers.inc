@@ -1,5 +1,6 @@
 RECIPE_MAINTAINER_pn-godep = "Angus Lees <gus@inodes.org>"
 RECIPE_MAINTAINER_pn-kubernetes = "Angus Lees <gus@inodes.org>"
 RECIPE_MAINTAINER_pn-libseccomp = "Angus Lees <gus@inodes.org>"
-RECIPE_MAINTAINER_pn-rkt = "Angus Lees <gus@inodes.org>"
-RECIPE_MAINTAINER_pn-rkt-pubkeys = "Angus Lees <gus@inodes.org>"
+RECIPE_MAINTAINER_pn-docker = "Angus Lees <gus@inodes.org>"
+RECIPE_MAINTAINER_pn-docker-containerd = "Angus Lees <gus@inodes.org>"
+RECIPE_MAINTAINER_pn-docker-runc = "Angus Lees <gus@inodes.org>"

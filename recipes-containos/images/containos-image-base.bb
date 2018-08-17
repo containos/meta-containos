@@ -7,11 +7,10 @@ inherit core-image
 # FIXME: re-enable this once dockerd works with a readonly /etc
 #IMAGE_FEATURES += "read-only-rootfs"
 
-# is this actually needed?
-#WKS_FILE_DEPENDS_BOOTLOADERS += "virtual/bootloader"
-#do_image_wic[depends] += " \
-#	virtual/bootloader:do_deploy \
-#	"
+WKS_FILE_DEPENDS_BOOTLOADERS += "virtual/bootloader"
+do_image_wic[depends] += " \
+	virtual/bootloader:do_deploy \
+	"
 
 WKS_FILE = "sdimage-dualboot.wks.in"
 WIC_CREATE_EXTRA_ARGS += "--debug"

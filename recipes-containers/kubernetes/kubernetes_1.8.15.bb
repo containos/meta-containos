@@ -4,13 +4,15 @@ SUMMARY = "container orchestration engine"
 DESCRIPTION = "Kubernetes is an open-source system for automating deployment, \
 operations, and scaling of containerized applications."
 
+UPSTREAM_CHECK_URI = "https://github.com/kubernetes/kubernetes/releases"
+UPSTREAM_CHECK_REGEX = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
+
 SRC_URI = "\
 	https://github.com/kubernetes/kubernetes/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
-        file://git-archive.patch \
 	file://docker.conf \
 	"
-SRC_URI[md5sum] = "c35ab1148b9906d1920a5d208a1c329e"
-SRC_URI[sha256sum] = "ac46cadd3e0221582936cf901f426104793fe98eff7f06dfb886a765e4d57d0d"
+SRC_URI[md5sum] = "53984041166b9fef173285404cf267a6"
+SRC_URI[sha256sum] = "ac6a0595edb8760813cc7e1b24e011057a2b9474d3e6eb1addf4ba1bb7d66abc"
 
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
