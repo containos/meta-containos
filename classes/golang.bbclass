@@ -12,6 +12,9 @@ export GOARCH = "${TARGET_GOARCH}"
 GO_LDFLAGS = "${GO_RPATH} ${GO_LINKMODE} -extldflags '${GO_EXTLDFLAGS}'"
 export GOBUILDFLAGS = '-v -ldflags="${GO_LDFLAGS}"'
 
+export GOMAXPROCS
+BB_HASHBASE_WHITELIST += "GOMAXPROCS GO_PARALLEL_BUILD"
+
 # Note: Needs to be explicit package names, and not a ./... wildcard.
 # See comment in do_configure below for why.
 GO_INSTALL ?= "${GO_IMPORT}"
