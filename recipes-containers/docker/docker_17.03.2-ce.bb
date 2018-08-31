@@ -5,15 +5,15 @@ DESCRIPTION = "Docker is an open source project to pack, ship and run any \
 application as a lightweight container."
 
 UPSTREAM_CHECK_URI = "https://github.com/moby/moby/releases"
-UPSTREAM_CHECK_REGEX = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
+UPSTREAM_CHECK_REGEX = "v(?P<pver>(\d+[._-]*)+(-\w+)?)\.tar\.gz"
 
 inherit golang systemd useradd pkgconfig
 
 SRC_URI = "https://github.com/moby/moby/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
            file://0001-Extend-timeout-while-waiting-for-containerd-to-start.patch \
            "
-SRC_URI[md5sum] = "a064b84fda9a903ce23b2c8818d32337"                            
-SRC_URI[sha256sum] = "fb7052a4c565d2fd7ad4f63dc17c5e3d9b0896e18f5cafdc2c78f9c5974a86b3"                                                                         
+SRC_URI[md5sum] = "a064b84fda9a903ce23b2c8818d32337"
+SRC_URI[sha256sum] = "fb7052a4c565d2fd7ad4f63dc17c5e3d9b0896e18f5cafdc2c78f9c5974a86b3"
 
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=aadc30f9c14d876ded7bedc0afd2d3d7"
