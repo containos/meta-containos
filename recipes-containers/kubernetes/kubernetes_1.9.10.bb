@@ -11,8 +11,8 @@ SRC_URI = "\
 	https://github.com/kubernetes/kubernetes/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
 	file://docker.conf \
 	"
-SRC_URI[md5sum] = "53984041166b9fef173285404cf267a6"
-SRC_URI[sha256sum] = "ac6a0595edb8760813cc7e1b24e011057a2b9474d3e6eb1addf4ba1bb7d66abc"
+SRC_URI[md5sum] = "3e0ee28948d88c8166df73ec4fee5170"
+SRC_URI[sha256sum] = "025c9351c4078dd660b77a0884116a074ed2261d5d4bd3497f3f47e1be666932"
 
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
@@ -22,7 +22,7 @@ inherit golang systemd
 # Additional dependencies for `make generated-files`
 DEPENDS += "coreutils-native rsync-native"
 
-PACKAGES =+ "${PN}-client kubelet kubeadm kube-proxy pause hyperkube"
+PACKAGES =+ "${PN}-client kubelet kubeadm kube-proxy pause gci-mounter hyperkube"
 
 RDEPENDS_${PN}-dev += "bash"
 
@@ -40,7 +40,7 @@ RDEPENDS_kubelet += "findutils"
 
 RDEPENDS_kubeadm += "kubelet"
 
-FILES_${PN}-client += "${bindir}/kubectl ${bindir}/kubefed"
+FILES_${PN}-client += "${bindir}/kubectl"
 FILES_kubelet += "\
 	${bindir}/kubelet \
 	${systemd_system_unitdir}/kubelet.service \
@@ -56,6 +56,7 @@ FILES_kubeadm += "\
 	${bindir}/kubeadm \
 	"
 FILES_pause += "${bindir}/pause"
+FILES_gci-mounter += "${bindir}/mounter"
 FILES_hyperkube += "${bindir}/hyperkube"
 FILES_${PN}-staticdev += "${GOROOT_FINAL}/pkg"
 
@@ -65,6 +66,7 @@ SYSTEMD_SERVICE_kubelet = "kubelet.service"
 # Upstream build scripts are too painful to work with. Skip them
 # entirely and just do our own regular golang build.
 GO_IMPORT = "k8s.io/kubernetes"
+# This list is composed from hack/lib/golang.sh server_targets + client_targets
 GO_INSTALL = "\
 	 ${GO_IMPORT}/cmd/kube-proxy \
 	 ${GO_IMPORT}/cmd/kube-apiserver \
@@ -76,8 +78,8 @@ GO_INSTALL = "\
 	 ${GO_IMPORT}/vendor/k8s.io/kube-aggregator \
 	 ${GO_IMPORT}/vendor/k8s.io/apiextensions-apiserver \
 	 ${GO_IMPORT}/plugin/cmd/kube-scheduler \
+	 ${GO_IMPORT}/cluster/gce/gci/mounter \
 	 ${GO_IMPORT}/cmd/kubectl \
-	 ${GO_IMPORT}/federation/cmd/kubefed \
 	 "
 
 # go binaries don't use GNU_HASH. Known, disable warning
@@ -92,8 +94,11 @@ export KUBE_GO_PACKAGE = "${GO_IMPORT}"
 GO_LDFLAGS += "$(bash -c '. ${S}/hack/lib/version.sh; kube::version::ldflags')"
 
 do_configure_prepend() {
-  # upstream tarball includes uncleaned binaries (?!)
-  rm -v -f ${S}/cluster/gce/gci/mounter/mounter
+  mkdir -p ${S}/vendor/k8s.io
+  for repo in ${S}/staging/src/k8s.io/*; do
+    f=${repo##*/}
+    test -e ${S}/vendor/k8s.io/$f || ln -s ../../staging/src/k8s.io/$f ${S}/vendor/k8s.io/$f
+  done
 }
 
 do_compile_prepend() {
@@ -125,7 +130,7 @@ do_install_append () {
   install -d -m 0755 ${D}${sysconfdir}/kubernetes/manifests
 
   install -D -m 0644 -t ${D}${systemd_system_unitdir} ${S}/build/debs/kubelet.service
-  install -D -m 0644 ${S}/build/debs/kubeadm-10.conf ${D}${systemd_system_unitdir}/kubelet.service.d/10-kubeadm.conf
+  install -D -m 0644 ${S}/build/debs/10-kubeadm.conf ${D}${systemd_system_unitdir}/kubelet.service.d/10-kubeadm.conf
   install -D -m 0644 ${WORKDIR}/docker.conf ${D}${systemd_system_unitdir}/docker.service.d/10-kubelet.conf
 
   install -d -m 0755 ${D}${localstatedir}/lib/kubelet
