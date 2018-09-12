@@ -1,0 +1,8 @@
+{
+  "test_init": [
+    {
+      "pkg": "kubeadm",
+      "rm": true
+    }
+  ]
+}
