@@ -10,6 +10,13 @@ inherit core-image
 # Bugfix.  testimage.bbclass fails to append this for _qemuall
 TESTIMAGEDEPENDS_qemuall += "${@bb.utils.contains('IMAGE_PKGTYPE', 'ipk', 'opkg-utils-native:do_populate_sysroot', '', d)}"
 
+# Needs more than a tiny amount of ram
+QB_MEM = "-m 2048"
+
+# Extra rootfs space for qemu images, so they can install docker
+# images, etc. (in KB)
+IMAGE_ROOTFS_EXTRA_SPACE_qemuall = "5242880"
+
 WKS_FILE_DEPENDS_BOOTLOADERS += "virtual/bootloader"
 do_image_wic[depends] += " \
 	virtual/bootloader:do_deploy \
