@@ -7,10 +7,10 @@ operations, and scaling of containerized applications."
 UPSTREAM_CHECK_URI = "https://github.com/kubernetes/kubernetes/releases"
 UPSTREAM_CHECK_REGEX = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
 
-SRC_URI = "\
-	https://github.com/kubernetes/kubernetes/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
-	file://docker.conf \
-	"
+SRC_URI = "https://github.com/kubernetes/kubernetes/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
+           file://docker.conf \
+           file://0001-Increase-many-timeouts-10x.patch \
+           "
 SRC_URI[md5sum] = "3e0ee28948d88c8166df73ec4fee5170"
 SRC_URI[sha256sum] = "025c9351c4078dd660b77a0884116a074ed2261d5d4bd3497f3f47e1be666932"
 
