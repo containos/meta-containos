@@ -19,7 +19,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 inherit golang systemd
 
-# Additional dependencies for `make generated-files`
+# Additional dependencies for `make generated_files`
 DEPENDS += "coreutils-native rsync-native"
 
 PACKAGES =+ "${PN}-client kubelet kubeadm kube-proxy pause gci-mounter hyperkube"
@@ -38,7 +38,7 @@ RDEPENDS_kubelet += "socat"
 # FIXME: uses find -printf, which isn't supported by busybox find
 RDEPENDS_kubelet += "findutils"
 
-RDEPENDS_kubeadm += "kubelet"
+RDEPENDS_kubeadm += "kubelet cri-tools"
 
 FILES_${PN}-client += "${bindir}/kubectl"
 FILES_kubelet += "\
