@@ -12,3 +12,6 @@ IMAGE_INSTALL += "kubeadm"
 # Extra rootfs space for qemu images, so they can install docker
 # images, etc. (in KB)
 IMAGE_ROOTFS_EXTRA_SPACE_qemuall = "5242880"
+
+# bootstrap_autorun.py needs dosfstools packages
+TESTIMAGEDEPENDS_append = " dosfstools:do_build"

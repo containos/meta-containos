@@ -7,6 +7,9 @@ inherit core-image
 # FIXME: re-enable this once dockerd works with a readonly /etc
 #IMAGE_FEATURES += "read-only-rootfs"
 
+# Bugfix.  testimage.bbclass fails to append this for _qemuall
+TESTIMAGEDEPENDS_qemuall += "${@bb.utils.contains('IMAGE_PKGTYPE', 'ipk', 'opkg-utils-native:do_populate_sysroot', '', d)}"
+
 WKS_FILE_DEPENDS_BOOTLOADERS += "virtual/bootloader"
 do_image_wic[depends] += " \
 	virtual/bootloader:do_deploy \
