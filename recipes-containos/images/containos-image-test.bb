@@ -6,8 +6,8 @@ DESCRIPTION = "Image used during auto-testing."
 # what we want for testing, but probably not otherwise!)
 IMAGE_FEATURES += "debug-tweaks ssh-server-dropbear"
 
-# Used by kubernetes.py test case
-IMAGE_INSTALL += "kubeadm"
+# kubernetes.py needs kubeadm package
+TESTIMAGEDEPENDS_append = " kubernetes:do_build"
 
 # Extra rootfs space for qemu images, so they can install docker
 # images, etc. (in KB)

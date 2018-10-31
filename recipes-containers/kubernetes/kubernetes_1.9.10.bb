@@ -7,10 +7,10 @@ operations, and scaling of containerized applications."
 UPSTREAM_CHECK_URI = "https://github.com/kubernetes/kubernetes/releases"
 UPSTREAM_CHECK_REGEX = "v(?P<pver>(\d+[\.-_]*)+)\.tar\.gz"
 
-SRC_URI = "\
-	https://github.com/kubernetes/kubernetes/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
-	file://docker.conf \
-	"
+SRC_URI = "https://github.com/kubernetes/kubernetes/archive/v${PV}.tar.gz;downloadfilename=${BP}.tar.gz \
+           file://docker.conf \
+           file://0001-Increase-many-timeouts-10x.patch \
+           "
 SRC_URI[md5sum] = "3e0ee28948d88c8166df73ec4fee5170"
 SRC_URI[sha256sum] = "025c9351c4078dd660b77a0884116a074ed2261d5d4bd3497f3f47e1be666932"
 
@@ -19,7 +19,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 inherit golang systemd
 
-# Additional dependencies for `make generated-files`
+# Additional dependencies for `make generated_files`
 DEPENDS += "coreutils-native rsync-native"
 
 PACKAGES =+ "${PN}-client kubelet kubeadm kube-proxy pause gci-mounter hyperkube"
@@ -38,7 +38,7 @@ RDEPENDS_kubelet += "socat"
 # FIXME: uses find -printf, which isn't supported by busybox find
 RDEPENDS_kubelet += "findutils"
 
-RDEPENDS_kubeadm += "kubelet"
+RDEPENDS_kubeadm += "kubelet cri-tools"
 
 FILES_${PN}-client += "${bindir}/kubectl"
 FILES_kubelet += "\
@@ -85,10 +85,6 @@ GO_INSTALL = "\
 # go binaries don't use GNU_HASH. Known, disable warning
 # "QA Issue: No GNU_HASH in the elf binary: ..."
 INSANE_SKIP_kubeadm += "ldflags"
-
-# Note `-ldflags -linkmode=external` to work around
-# https://github.com/golang/go/issues/19425
-GO_LINKMODE = "--linkmode=external"
 
 export KUBE_GO_PACKAGE = "${GO_IMPORT}"
 GO_LDFLAGS += "$(bash -c '. ${S}/hack/lib/version.sh; kube::version::ldflags')"

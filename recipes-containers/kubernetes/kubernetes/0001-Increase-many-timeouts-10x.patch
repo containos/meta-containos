@@ -1,0 +1,99 @@
+From 5fa769eae93041575f55fcb4a6a6fa4435e88f39 Mon Sep 17 00:00:00 2001
+From: Angus Lees <gus@inodes.org>
+Date: Tue, 11 Sep 2018 09:52:19 +1000
+Subject: [PATCH] Increase many timeouts 10x
+
+kubeadm is full of aggressively short timeouts.  On slow machines
+(or qemu) this causes everything to thrash and/or fail, and has
+no upside.
+
+This is just moving the failure point further away.  A "proper" fix
+would replace all the timeouts with something more sophisticated.
+---
+ cmd/kubeadm/app/cmd/phases/selfhosting.go         | 2 +-
+ cmd/kubeadm/app/cmd/upgrade/apply.go              | 7 +------
+ cmd/kubeadm/app/phases/selfhosting/selfhosting.go | 2 +-
+ cmd/kubeadm/app/phases/upgrade/selfhosted.go      | 2 +-
+ cmd/kubeadm/app/util/staticpod/utils.go           | 2 +-
+ 5 files changed, 5 insertions(+), 10 deletions(-)
+
+diff --git a/cmd/kubeadm/app/cmd/phases/selfhosting.go b/cmd/kubeadm/app/cmd/phases/selfhosting.go
+index 9bf6530..607f1e1 100644
+--- a/cmd/kubeadm/app/cmd/phases/selfhosting.go
++++ b/cmd/kubeadm/app/cmd/phases/selfhosting.go
+@@ -102,7 +102,7 @@ func getSelfhostingSubCommand() *cobra.Command {
+ 			kubeadmutil.CheckErr(err)
+ 
+ 			// Converts the Static Pod-hosted control plane into a self-hosted one
+-			waiter := apiclient.NewKubeWaiter(client, 2*time.Minute, os.Stdout)
++			waiter := apiclient.NewKubeWaiter(client, 20*time.Minute, os.Stdout)
+ 			err = selfhosting.CreateSelfHostedControlPlane(constants.GetStaticPodDirectory(), constants.KubernetesDir, internalcfg, client, waiter, false)
+ 			kubeadmutil.CheckErr(err)
+ 		},
+diff --git a/cmd/kubeadm/app/cmd/upgrade/apply.go b/cmd/kubeadm/app/cmd/upgrade/apply.go
+index 08629ef..37565a2 100644
+--- a/cmd/kubeadm/app/cmd/upgrade/apply.go
++++ b/cmd/kubeadm/app/cmd/upgrade/apply.go
+@@ -40,7 +40,7 @@ import (
+ )
+ 
+ const (
+-	upgradeManifestTimeout = 1 * time.Minute
++	upgradeManifestTimeout = 10 * time.Minute
+ )
+ 
+ // applyFlags holds the information about the flags that can be passed to apply
+@@ -158,11 +158,6 @@ func RunApply(flags *applyFlags) error {
+ 		}
+ 	}
+ 
+-	// Use a prepuller implementation based on creating DaemonSets
+-	// and block until all DaemonSets are ready; then we know for sure that all control plane images are cached locally
+-	prepuller := upgrade.NewDaemonSetPrepuller(upgradeVars.client, upgradeVars.waiter, internalcfg)
+-	upgrade.PrepullImagesInParallel(prepuller, flags.imagePullTimeout)
+-
+ 	// Now; perform the upgrade procedure
+ 	if err := PerformControlPlaneUpgrade(flags, upgradeVars.client, upgradeVars.waiter, internalcfg); err != nil {
+ 		return fmt.Errorf("[upgrade/apply] FATAL: %v", err)
+diff --git a/cmd/kubeadm/app/phases/selfhosting/selfhosting.go b/cmd/kubeadm/app/phases/selfhosting/selfhosting.go
+index 18ae956..48b796f 100644
+--- a/cmd/kubeadm/app/phases/selfhosting/selfhosting.go
++++ b/cmd/kubeadm/app/phases/selfhosting/selfhosting.go
+@@ -34,7 +34,7 @@ import (
+ 
+ const (
+ 	// selfHostingWaitTimeout describes the maximum amount of time a self-hosting wait process should wait before timing out
+-	selfHostingWaitTimeout = 2 * time.Minute
++	selfHostingWaitTimeout = 20 * time.Minute
+ 
+ 	// selfHostingFailureThreshold describes how many times kubeadm will retry creating the DaemonSets
+ 	selfHostingFailureThreshold int = 5
+diff --git a/cmd/kubeadm/app/phases/upgrade/selfhosted.go b/cmd/kubeadm/app/phases/upgrade/selfhosted.go
+index cef6420..999b2c5 100644
+--- a/cmd/kubeadm/app/phases/upgrade/selfhosted.go
++++ b/cmd/kubeadm/app/phases/upgrade/selfhosted.go
+@@ -40,7 +40,7 @@ const (
+ 	upgradeTempLabel = "temp-upgrade-component"
+ 
+ 	// selfHostingWaitTimeout describes the maximum amount of time a self-hosting wait process should wait before timing out
+-	selfHostingWaitTimeout = 2 * time.Minute
++	selfHostingWaitTimeout = 20 * time.Minute
+ 
+ 	// selfHostingFailureThreshold describes how many times kubeadm will retry creating the DaemonSets
+ 	selfHostingFailureThreshold int = 10
+diff --git a/cmd/kubeadm/app/util/staticpod/utils.go b/cmd/kubeadm/app/util/staticpod/utils.go
+index 43c92e0..5d5dc07 100644
+--- a/cmd/kubeadm/app/util/staticpod/utils.go
++++ b/cmd/kubeadm/app/util/staticpod/utils.go
+@@ -90,7 +90,7 @@ func ComponentProbe(cfg *kubeadmapi.MasterConfiguration, componentName string, p
+ 				Scheme: scheme,
+ 			},
+ 		},
+-		InitialDelaySeconds: 15,
++		InitialDelaySeconds: 300,
+ 		TimeoutSeconds:      15,
+ 		FailureThreshold:    8,
+ 	}
+-- 
+2.11.0
+
