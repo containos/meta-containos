@@ -1,0 +1,5 @@
+[Path]
+PathExists=/dev/disk/by-label/BOOTSTRAP
+
+[Install]
+WantedBy=multi-user.target

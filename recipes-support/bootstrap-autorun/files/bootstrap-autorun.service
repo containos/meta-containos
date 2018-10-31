@@ -1,0 +1,8 @@
+[Unit]
+Description=Run externally provided system bootstrap script
+After=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=Yes
+ExecStart=/usr/lib/bootstrap-autorun/run-autorun.sh /dev/disk/by-label/BOOTSTRAP
