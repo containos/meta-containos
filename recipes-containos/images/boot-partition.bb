@@ -9,7 +9,9 @@ IMAGE_BOOT_FILES ??= ""
 
 IMGDEPLOYDIR = "${WORKDIR}/deploy-${PN}-image-complete"
 
-do_rootfs[depends] += "virtual/bootloader:do_deploy"
+DEPENDS_BOOTLOADER = ""
+DEPENDS_BOOTLOADER_arm = "virtual/bootloader:do_deploy"
+do_rootfs[depends] += "${DEPENDS_BOOTLOADER}"
 
 do_rootfs[cleandirs] += "${S}"
 fakeroot do_rootfs() {
