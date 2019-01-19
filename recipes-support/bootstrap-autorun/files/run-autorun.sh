@@ -3,6 +3,8 @@
 WORKDIR=/run/device-autorun
 
 notify() {
+    local event=$1
+
     set -- /sys/class/leds/*:usr/trigger
     if [ -e $1 ]; then
         t=$1
@@ -10,7 +12,7 @@ notify() {
         t=/dev/null
     fi
 
-    case $1 in
+    case $event in
         start)
             echo heartbeat > $t
             ;;
@@ -56,4 +58,4 @@ chown 0700 $WORKDIR
 mount -t auto $device $WORKDIR/mnt
 
 cd $WORKDIR/mnt
-sh $WORKDIR/mnt/autorun.sh 2>&1 | tee -a $WORKDIR/mnt/autorun.log
+sh ./autorun.sh >autorun.log 2>&1
