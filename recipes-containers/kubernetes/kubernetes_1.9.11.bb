@@ -11,8 +11,8 @@ SRC_URI = "https://github.com/kubernetes/kubernetes/archive/v${PV}.tar.gz;downlo
            file://docker.conf \
            file://0001-Increase-many-timeouts-10x.patch \
            "
-SRC_URI[md5sum] = "3e0ee28948d88c8166df73ec4fee5170"
-SRC_URI[sha256sum] = "025c9351c4078dd660b77a0884116a074ed2261d5d4bd3497f3f47e1be666932"
+SRC_URI[md5sum] = "cc454e5ef2034ddda1b1513bd3364bbd"
+SRC_URI[sha256sum] = "27daae1122fa56222703fe62f5b4ddbcfe8e4eeceb30caf8984c9a80b40504e1"
 
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
@@ -102,6 +102,8 @@ do_compile_prepend() {
   mkdir -p ${S}/pkg/generated
 
   GOOS="${BUILD_GOOS}" GOARCH="${BUILD_GOARCH}" \
+  GOROOT="${STAGING_LIBDIR_NATIVE}/go" \
+  GOTOOLDIR="${STAGING_LIBDIR_NATIVE}/go/pkg/tool/${BUILD_GOTUPLE}" \
   CC="${BUILD_CC}" \
   CPP="${BUILD_CPP}" \
   CGO_CFLAGS="${BUILD_CFLAGS}" \
@@ -133,6 +135,11 @@ do_install_append () {
 
   install -d -m 0755 ${D}${sysconfdir}/modules-load.d
   echo br-netfilter > ${D}${sysconfdir}/modules-load.d/kubelet.conf
+}
+
+do_install_ptest_base_append() {
+	# Unused by tests, and require bash
+	rm -f ${D}${PTEST_PATH}/${GO_IMPORT}/pkg/kubectl/cmd/testdata/edit/*.sh
 }
 
 BBCLASSEXTEND = "native nativesdk"
