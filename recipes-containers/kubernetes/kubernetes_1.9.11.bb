@@ -86,6 +86,10 @@ GO_INSTALL = "\
 # "QA Issue: No GNU_HASH in the elf binary: ..."
 INSANE_SKIP_kubeadm += "ldflags"
 
+# Note `-ldflags -linkmode=external` to work around
+# https://github.com/golang/go/issues/19425
+GO_LINKMODE = "--linkmode=external"
+
 export KUBE_GO_PACKAGE = "${GO_IMPORT}"
 GO_LDFLAGS += "$(bash -c '. ${S}/hack/lib/version.sh; kube::version::ldflags')"
 
