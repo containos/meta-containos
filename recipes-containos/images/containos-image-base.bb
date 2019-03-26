@@ -9,6 +9,7 @@ inherit core-image
 
 # Bugfix.  testimage.bbclass fails to append this for _qemuall
 TESTIMAGEDEPENDS_qemuall += "${@bb.utils.contains('IMAGE_PKGTYPE', 'ipk', 'opkg-utils-native:do_populate_sysroot', '', d)}"
+TESTIMAGEDEPENDS_qemuall += "${@bb.utils.contains('IMAGE_PKGTYPE', 'ipk', 'opkg-native:do_populate_sysroot', '', d)}"
 
 # Needs more than a tiny amount of ram
 QB_MEM = "-m 2048"
