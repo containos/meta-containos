@@ -48,19 +48,30 @@ python golang_do_unpack() {
 
 golang_do_install() {
 	install -d ${D}${libdir}/go/src/${GO_IMPORT}
-        tar -C ${B} -cf - pkg | tar -C ${D}${libdir}/go --no-same-owner -xf -
 
-        ( cd ${S} && \
-          find . -path ./vendor -prune -o \
-        	-type f -name \*.go -print > ${WORKDIR}/gosrc.list )
-        tar -C ${S} -cf - --exclude-vcs --verbatim-files-from -T ${WORKDIR}/gosrc.list | \
-        	tar -C ${D}${libdir}/go/src/${GO_IMPORT} --no-same-owner -xf -
+	( cd ${S} && \
+	  find . -path ./vendor -prune -o -name testdata -prune -o \
+		-type f -name \*.go -print > ${WORKDIR}/gosrc.list )
+	tar -C ${S} -cf - --exclude-vcs --verbatim-files-from -T ${WORKDIR}/gosrc.list | \
+		tar -C ${D}${libdir}/go/src/${GO_IMPORT} --no-same-owner -xf -
+	tar -C ${B} -cf - pkg | tar -C ${D}${libdir}/go --no-same-owner -xf -
 
 	for file in ${B}/${GO_BUILD_BINDIR}/*; do
-        	if [ -f $file ]; then
-                	install -D -m 0755 -t ${D}${bindir}/ $file
+		if [ -f $file ]; then
+			install -D -m 0755 -t ${D}${bindir}/ $file
                 fi
         done
+}
+
+go_stage_testdata() {
+	oldwd="$PWD"
+	cd ${S}
+	find . -depth -name vendor -prune -o -type d -name testdata -print | while read d; do
+		dstparent=${D}/${PTEST_PATH}/${GO_IMPORT}/`dirname $d`
+		install -d $dstparent
+		cp --preserve=mode,timestamps -R $d $dstparent/
+	done
+	cd "$oldwd"
 }
 
 EXPORT_FUNCTIONS do_configure do_unpack do_install

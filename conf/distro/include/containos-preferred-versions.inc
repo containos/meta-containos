@@ -1,4 +1,3 @@
 # A number of recipes (godep, kubernetes) assume go >=1.6 for ./vendor/
-PREFERRED_VERSION_go = "1.9"
-PREFERRED_PROVIDER_go-cross = "go"
-PREFERRED_VERSION_go-native = "1.9"
+# Go 1.10 shared runtime is broken: https://github.com/golang/go/issues/24640
+GOVERSION = "1.9%"
