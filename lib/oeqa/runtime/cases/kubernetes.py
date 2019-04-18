@@ -55,7 +55,7 @@ class KubeletTest(OERuntimeTestCase):
         self.assertEqual(status, 0, output)
         docker_driver = output
 
-        cmd = '%s | grep [k]ubelet' % self.tc.target_cmds['ps']
+        cmd = '%s ww | grep [k]ubelet' % self.tc.target_cmds['ps']
         (status, output) = self.target.run(cmd)
         self.assertEqual(status, 0, msg='No kubelet running; ps output:\n%s' % output)
         matches = re.findall('--cgroup-driver(?:=| +)(\S+)', output)
