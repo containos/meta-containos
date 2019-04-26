@@ -1,0 +1,9 @@
+[Unit]
+Description=%f - if it exists
+ConditionPathExists=%f
+
+[Swap]
+What=%f
+
+[Install]
+WantedBy=multi-user.target

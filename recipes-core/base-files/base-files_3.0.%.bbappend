@@ -5,6 +5,7 @@ SRC_URI += "\
   file://eth-dhcp \
   file://timesyncd.conf \
   file://var-lib.mount \
+  file://var-lib-swapfile1.swap \
   file://kubelet.conf \
   file://kubelet.path \
   file://system.conf \
@@ -17,7 +18,7 @@ systemd_timesyncdconfdir = "${systemd_unitdir}/timesyncd.conf.d"
 systemd_systemconfdir = "${systemd_unitdir}/system.conf.d"
 
 SYSTEMD_PACKAGES += "${PN}"
-SYSTEMD_SERVICE_${PN} += "kubelet.path ${EXTRA_SYSTEMD_SERVICES}"
+SYSTEMD_SERVICE_${PN} += "kubelet.path var-lib-swapfile1.swap ${EXTRA_SYSTEMD_SERVICES}"
 
 EXTRA_SYSTEMD_SERVICES = ""
 EXTRA_SYSTEMD_SERVICES_bananapi += "var-lib.mount"
