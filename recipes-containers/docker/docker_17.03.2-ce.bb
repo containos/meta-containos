@@ -46,16 +46,23 @@ RDEPENDS_${PN} += "\
 	busybox \
 	e2fsprogs-mke2fs (>= 1.4.12) e2fsprogs-tune2fs (>= 1.4.12) \
 	xz (>= 4.9) \
+        "
+RRECOMMENDS_${PN} += "\
 	kernel-module-bridge \
 	kernel-module-br-netfilter \
+	kernel-module-veth \
 	kernel-module-xt-conntrack \
 	kernel-module-xt-addrtype \
 	kernel-module-xt-nat \
+	kernel-module-xt-ipvs \
+	kernel-module-nf-nat \
 	kernel-module-nf-nat-masquerade-ipv4 \
 	kernel-module-ip-vs \
+	kernel-module-ip-vs-rr \
 	kernel-module-xt-redirect \
 	kernel-module-xfrm-user \
 	kernel-module-overlay \
+	kernel-module-cls-cgroup \
 	"
 RDEPENDS_${PN}-client += "\
 	git (>= 1.7) \

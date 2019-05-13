@@ -1,1 +1,1 @@
-SECURITY_CFLAGS_pn-rkt = "${SECURITY_NO_PIE_CFLAGS}"
+require conf/distro/include/security_flags.inc
