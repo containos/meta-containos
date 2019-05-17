@@ -11,7 +11,6 @@ LIC_FILES_CHKSUM = "\
 RAUC_BUNDLE_COMPATIBLE ?= "${MACHINE}"
 RAUC_BUNDLE_VERSION = "${DISTRO_VERSION}"
 RAUC_BUNDLE_SLOTS = "rootfs"
-RAUC_BUNDLE_SLOTS_bananapi = "rootfs boot"
 
 RAUC_BUNDLE_HOOKS[file] = "hook.sh"
 
@@ -23,6 +22,7 @@ RAUC_SLOT_rootfs[hooks] = "post-install"
 
 RAUC_SLOT_kernel ?= "virtual/kernel"
 RAUC_SLOT_kernel[type] = "kernel"
+RAUC_SLOT_kernel[file] = "${KERNEL_IMAGETYPE}-${MACHINE}.bin"
 
 RAUC_SLOT_boot ?= "boot-partition"
 RAUC_SLOT_boot[type] = "image"
@@ -30,10 +30,13 @@ RAUC_SLOT_boot[fstype] = "tar"
 
 RAUC_SLOT_bootloader ?= "virtual/bootloader"
 RAUC_SLOT_bootloader[type] = "boot"
+RAUC_SLOT_bootloader[file] = "${UBOOT_IMAGE}"
+RAUC_SLOT_bootloader[hooks] = "install"
 
 RAUC_SLOT_dtb ?= "kernel-devicetree"
 RAUC_SLOT_dtb[type] = "file"
-RAUC_SLOT_dtb[file] = "${MACHINE}.dtb"
+RAUC_SLOT_dtb[file] = "${KERNEL_DEVICETREE}"
+RAUC_SLOT_dtb[hooks] = "install"
 
 do_bundle_prepend() {
 	set -x

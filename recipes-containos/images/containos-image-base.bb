@@ -25,7 +25,6 @@ do_image_wic[depends] += " \
 
 WKS_FILE = "sdimage-dualboot.wks.in"
 WIC_CREATE_EXTRA_ARGS += "--debug"
-WIC_CREATE_EXTRA_ARGS += "--no-fstab-update"
 
 read_only_rootfs_hook_append () {
 	set -x
@@ -37,5 +36,16 @@ read_only_rootfs_hook_append () {
 	fi
 	if [ -f ${IMAGE_ROOTFS}/usr/lib/tmpfiles.d/var.conf ]; then
 		sed -i '\!d /var/log !d' ${IMAGE_ROOTFS}/usr/lib/tmpfiles.d/var.conf
+	fi
+}
+
+# FIXME: this is a bit ugly.
+UBOOT_PART = ""
+UBOOT_PART_bananapi = "/dev/mmcblk0p1"
+ROOTFS_POSTPROCESS_COMMAND += "fstab_fixup ; "
+fstab_fixup () {
+	if [ -n "${UBOOT_PART}" ]; then
+		mkdir -p ${IMAGE_ROOTFS}/boot/uboot
+		echo "${UBOOT_PART}	/boot/uboot	vfat	defaults	0 0" >> ${IMAGE_ROOTFS}/etc/fstab
 	fi
 }

@@ -1,6 +1,12 @@
 #!/bin/sh
 
 set -e
+HOOK="$1"; shift
+
+if [ "$2" = debug ]; then
+    shift
+    set -x
+fi
 
 slotcp() {
     flags=""
@@ -21,10 +27,8 @@ slotcp() {
     done
 }
 
-case "$1" in
-    slot-post-install)
-	test "$RAUC_SLOT_CLASS" = rootfs || exit 0
-
+case "$RAUC_SLOT_CLASS:$HOOK" in
+    rootfs:slot-post-install)
 	slotcp /etc/hostname
 	slotcp /etc/machine-id
 
