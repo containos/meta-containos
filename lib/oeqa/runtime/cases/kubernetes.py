@@ -26,6 +26,8 @@ class KubeletTest(OERuntimeTestCase):
             dst = '/etc/%s' % path
             cls.tc.target.copyTo(src, dst)
 
+        cls.tc.target.run('systemctl restart kubelet')
+
     @classmethod
     def tearDownClass(cls):
         cls.tc.target.run('find /etc/kubernetes -type f -print | xargs rm -v')

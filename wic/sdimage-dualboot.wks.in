@@ -7,7 +7,7 @@
 #    0     8   reserved
 #    8    32   SPL
 #   40   504   u-boot
-#  544   128   u-boot env
+#  544   128   u-boot env (obsolete, now uses FAT)
 # 1024  2048   u-boot script+fdtfile partition
 # 4096         first partition
 #

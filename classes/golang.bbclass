@@ -4,8 +4,14 @@
 # directory directly rather than $GOROOT
 
 # go.bbclass doesn't set these?!
+# Note: Fixed in warrior - remove then.
 export GOOS = "${TARGET_GOOS}"
 export GOARCH = "${TARGET_GOARCH}"
+export GOHOSTARCH = "${BUILD_GOARCH}"
+export GOHOSTOS = "${BUILD_GOOS}"
+export GOARM = "${TARGET_GOARM}"
+export GO386 = "${TARGET_GO386}"
+export GOMIPS = "${TARGET_GOMIPS}"
 
 # go.bbclass includes "-ldflags='...'" in value for GO_LDFLAGS, which
 # makes it impossible to append more LDFLAGS :(
